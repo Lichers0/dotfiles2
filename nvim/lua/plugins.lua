@@ -215,6 +215,15 @@ end
 
 local function theming(use)
     use({
+        "sainnhe/gruvbox-material",
+        cond = function()
+            return require("conditions").is_current_theme("gruvbox-material")
+        end,
+        config = function()
+            require("theming.theme").setup("github")
+        end,
+    })
+    use({
         "projekt0n/github-nvim-theme",
         cond = function()
             return require("conditions").is_current_theme("github")

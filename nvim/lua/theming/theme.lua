@@ -5,6 +5,7 @@ M.setup = function(theme)
         material = require("theming.plugin_material").setup,
         onedark = require("theming.plugin_onedark").setup,
         tokyonight = require("theming.plugin_tokyonight").setup,
+        gruvbox_material = require("theming.plugin_gruvbox_material").setup,
     }
 
     setup_functions[theme]()
