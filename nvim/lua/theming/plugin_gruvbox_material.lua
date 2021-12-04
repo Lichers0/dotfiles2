@@ -5,11 +5,11 @@ M.setup = function()
         transparent = false,
     })
 
-    require("github-theme").setup({
+    --[[ require("github-theme").setup({
         sidebars = config.sidebars,
         theme_style = config.style,
         transparent = config.transparent,
-    })
+    }) ]]
 end
 
 return M
