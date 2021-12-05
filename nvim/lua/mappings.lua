@@ -8,6 +8,13 @@ local function windows()
     })
 end
 
+local function insert_mode()
+    keymaps.register("i", {
+        ["kj"] = [[<ESC>]],
+        ["jk"] = [[<ESC>]],
+    })
+end
+
 local function zen()
     keymaps.register("n", {
         ["<C-z>"] = [[<cmd>ZenMode<cr>]],
@@ -17,7 +24,8 @@ end
 local function functions()
     keymaps.register("n", {
         ["<C-a>"] = [[<cmd>TodoTrouble<cr>]],
-        ["<C-e>"] = [[<cmd>lua require'sidebar'.explorer()<cr>]],
+        ["<leader>ntt"] = [[<cmd>NvimTreeToggle<cr>]],
+        ["<leader>ntf"] = [[<cmd>lua require'sidebar'.explorer()<cr>]],
         ["<C-f><C-b>"] = [[<cmd>lua require'telescope.builtin'.buffers()<cr>]],
         ["<C-f><C-d>"] = [[<cmd>lua require'telescope.builtin'.lsp_document_diagnostics()<cr>]],
         ["<C-f><C-f>"] = [[<cmd>lua require'navigation.search'.git_or_local()<cr>]],
@@ -127,6 +135,7 @@ mappings.setup = function()
     buffer()
     editor_motion()
     terminal()
+    insert_mode()
 end
 
 return mappings
