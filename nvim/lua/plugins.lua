@@ -261,6 +261,21 @@ local function theming(use)
     })
 end
 
+local function tpope(use)
+  use 'tpope/vim-sensible'
+  use 'tpope/vim-rails'
+  use 'tpope/vim-abolish'
+  use 'tpope/vim-surround'
+  use 'tpope/vim-bundler'
+  use 'tpope/vim-capslock'
+  use 'tpope/vim-dadbod'
+  use 'tpope/vim-jdaddy'
+  use 'tpope/vim-fugitive'
+  use 'tpope/vim-commentary'
+  -- '] ' ']e'
+  use 'tpope/vim-unimpaired'
+end
+
 require("packer").startup(function(use)
     use("wbthomason/packer.nvim")
 
@@ -279,4 +294,5 @@ require("packer").startup(function(use)
     status(use)
     terminal(use)
     theming(use)
+    tpope(use)
 end)
