@@ -27,13 +27,14 @@ function M.setup()
         },
         -- TODO: Refactor mapping into mappings.lua
         mapping = {
-            ["<C-p>"] = cmp.mapping.select_prev_item(),
-            ["<C-n>"] = cmp.mapping.select_next_item(),
-            ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-            ["<C-d>"] = cmp.mapping.scroll_docs(4),
+            ["<C-k>"] = cmp.mapping.select_prev_item(),
+            ["<C-j>"] = cmp.mapping.select_next_item(),
+            ["<C-l>"] = cmp.mapping.close(),
+            ["<C-Space>"] = cmp.mapping.complete(),
+            ["<C-j>"] = cmp.mapping.select_next_item(),
             ["<CR>"] = cmp.mapping.confirm({
                 behavior = cmp.ConfirmBehavior.Insert,
-                select = false,
+                select = true,
             }),
             ["<Tab>"] = cmp.mapping(handle.jump_next, { "i", "s" }),
             ["<S-Tab>"] = cmp.mapping(handle.jump_previous, { "i", "s" }),
