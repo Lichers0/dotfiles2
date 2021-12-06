@@ -128,6 +128,16 @@ local function terminal()
     })
 end
 
+local function ctrlsf()
+    keymaps.register("n", {
+        ["<Leader>sf"] = [[<Plug>CtrlSFPrompt]],
+        ["<Leader>sft"] = [[<cmd>CtrlSFToggle<cr>]],
+      }, {
+        noremap = false, silent = false 
+      }
+    )
+end
+
 mappings.setup = function()
     windows()
     zen()
@@ -136,6 +146,7 @@ mappings.setup = function()
     editor_motion()
     terminal()
     insert_mode()
+    ctrlsf()
 end
 
 return mappings
