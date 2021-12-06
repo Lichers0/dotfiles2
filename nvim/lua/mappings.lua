@@ -77,9 +77,10 @@ mappings.editor_on_text = {
 
 local function editor_motion()
     keymaps.register("n", {
-        ["<leader>k"] = [[<cmd>HopChar1<cr>]],
-        ["<leader>l"] = [[<cmd>HopLine<cr>]],
-        ["<leader>w"] = [[<cmd>HopWord<cr>]],
+        ["<leader>jc"] = [[<cmd>HopChar1<cr>]],
+        ["<leader>jl"] = [[<cmd>HopLine<cr>]],
+        ["<leader>jw"] = [[<cmd>HopWord<cr>]],
+        ["<leader>jp"] = [[<cmd>HopPattern<cr>]],
     })
 end
 
