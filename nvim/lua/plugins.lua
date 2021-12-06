@@ -92,6 +92,22 @@ local function language(use)
         end,
         after = "nvim-treesitter",
     })
+
+    use({
+      "tzachar/cmp-tabnine",
+      config = function()
+	      require('cmp_tabnine.config').setup({
+          max_lines = 1000;
+          max_num_results = 20;
+          sort = true;
+          run_on_every_keystroke = true;
+          snippet_placeholder = '..';
+          ignored_file_types = {};
+        })
+      end,
+      run = "./install.sh",
+      after = "hrsh7th/nvim-cmp",
+    })
 end
 
 local function layout(use)
