@@ -118,24 +118,28 @@ local function motion(use)
             require("hop").setup({})
         end,
     })
+    -- a smooth scrolling neovim
     use({
         "karb94/neoscroll.nvim",
         config = function()
             require("motion.plugin_neoscroll")
         end,
     })
+    -- peeks lines of the buffer in non-obtrusive way
     use({
         "nacro90/numb.nvim",
         config = function()
             require("numb").setup()
         end,
     })
+    -- displays interactive vertical scrollbars
     use({
         "dstein64/nvim-scrollview",
         config = function()
             require("motion.plugin_scrollview")
         end,
     })
+    -- An always-on highlight for a unique character in every word on a line to help you use f, F and family
     use("unblevable/quick-scope")
 end
 
