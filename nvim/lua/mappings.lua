@@ -62,17 +62,23 @@ end
 
 -- editor
 mappings.editor_on_text = {
-    ["ga"] = [[<cmd>lua vim.lsp.buf.formatting()<cr>]],
-    ["gd"] = [[<cmd>lua require'telescope.builtin'.lsp_definitions()<cr>]],
-    ["gf"] = "<cmd>lua vim.lsp.buf.declaration()<cr>",
-    ["gH"] = [[<cmd>lua require'telescope.builtin'.lsp_references()<cr>]],
-    ["gi"] = "<cmd>lua vim.lsp.buf.implementation()<cr>",
-    ["K"] = "<cmd>lua vim.lsp.buf.hover()<cr>",
-    ["gh"] = "<cmd>lua vim.lsp.buf.signature_help()<cr>",
-    ["gr"] = "<cmd>lua vim.lsp.buf.rename()<cr>",
-    ["gx"] = [[<cmd>lua require'telescope.builtin'.lsp_code_actions()<cr>]],
-    ["gp"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<cr>]],
-    ["gn"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<cr>]],
+    ["<leader>lft"] = [[<cmd>lua vim.lsp.buf.formatting()<cr>]],
+    ["<leader>ldc"] = [[<cmd>lua vim.lsp.buf.declaration()<cr>]],
+    ["<leader>lhv"] = [[<cmd>lua vim.lsp.buf.hover()<cr>]],
+    ["<leader>lrf"] = [[<cmd>lua vim.lsp.buf.references()<cr>]],
+    ["<leader>lds"] = [[<cmd>lua vim.lsp.buf.document_symbol()<cr>]],
+    ["<leader>ldf"] = [[<cmd>lua vim.lsp.buf.definition()<cr>]],
+    ["<leader>lgk"] = [[<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>]],
+    ["<leader>lgn"] = [[<cmd>lua vim.lsp.diagnostic.goto_next()<cr>]],
+    ["<leader>lca"] = [[<cmd>lua vim.lsp.diagnostic.code_action()<cr>]],
+    ["<leader>lim"] = [[<cmd>lua vim.lsp.buf.implementation()<cr>]],
+    ["<leader>lsh"] = [[<cmd>lua vim.lsp.buf.signature_help()<cr>]],
+    ["<leader>lrn"] = [[<cmd>lua vim.lsp.buf.rename()<cr>]],
+    ["tdf"] = [[<cmd>lua require'telescope.builtin'.lsp_definitions()<cr>]],
+    ["trf"] = [[<cmd>lua require'telescope.builtin'.lsp_references()<cr>]],
+    ["tca"] = [[<cmd>lua require'telescope.builtin'.lsp_code_actions()<cr>]],
+    ["sdk"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<cr>]],
+    ["sdj"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<cr>]],
 }
 
 local function editor_motion()
