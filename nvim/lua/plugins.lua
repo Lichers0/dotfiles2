@@ -222,6 +222,9 @@ local function status(use)
             require("status.plugin_lualine").setup()
         end,
     })
+    use({
+      "rcarriga/nvim-notify"
+    })
 end
 
 local function terminal(use)
