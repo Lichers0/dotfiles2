@@ -69,16 +69,16 @@ mappings.editor_on_text = {
     ["<leader>lds"] = [[<cmd>lua vim.lsp.buf.document_symbol()<cr>]],
     ["<leader>ldf"] = [[<cmd>lua vim.lsp.buf.definition()<cr>]],
     ["<leader>lgk"] = [[<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>]],
-    ["<leader>lgn"] = [[<cmd>lua vim.lsp.diagnostic.goto_next()<cr>]],
+    ["<leader>lgj"] = [[<cmd>lua vim.lsp.diagnostic.goto_next()<cr>]],
     ["<leader>lca"] = [[<cmd>lua vim.lsp.diagnostic.code_action()<cr>]],
     ["<leader>lim"] = [[<cmd>lua vim.lsp.buf.implementation()<cr>]],
     ["<leader>lsh"] = [[<cmd>lua vim.lsp.buf.signature_help()<cr>]],
     ["<leader>lrn"] = [[<cmd>lua vim.lsp.buf.rename()<cr>]],
-    ["tdf"] = [[<cmd>lua require'telescope.builtin'.lsp_definitions()<cr>]],
-    ["trf"] = [[<cmd>lua require'telescope.builtin'.lsp_references()<cr>]],
-    ["tca"] = [[<cmd>lua require'telescope.builtin'.lsp_code_actions()<cr>]],
-    ["sdk"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<cr>]],
-    ["sdj"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<cr>]],
+    -- ["tdf"] = [[<cmd>lua require'telescope.builtin'.lsp_definitions()<cr>]],
+    -- ["trf"] = [[<cmd>lua require'telescope.builtin'.lsp_references()<cr>]],
+    -- ["tca"] = [[<cmd>lua require'telescope.builtin'.lsp_code_actions()<cr>]],
+    -- ["sdk"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<cr>]],
+    -- ["sdj"] = [[<cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<cr>]],
 }
 
 local function editor_motion()
@@ -137,7 +137,7 @@ end
 
 local function ctrlsf()
     keymaps.register("n", {
-        ["<Leader>sf"] = [[<Plug>CtrlSFPrompt]],
+        ["<Leader>sfp"] = [[<Plug>CtrlSFPrompt]],
         ["<Leader>sft"] = [[<cmd>CtrlSFToggle<cr>]],
       }, {
         noremap = false, silent = false 
