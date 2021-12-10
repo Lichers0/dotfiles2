@@ -27,6 +27,8 @@ local function functions()
         ["<leader>ntt"] = [[<cmd>NvimTreeToggle<cr>]],
         ["<leader>ntf"] = [[<cmd>lua require'sidebar'.explorer()<cr>]],
         ["<leader>tg"] = [[<cmd>lua require'telescope.builtin'.live_grep()<cr>]],
+        ["<leader>tpf"] = [[<cmd>lua require'telescope.builtin'.project_files()<cr>]],
+        ["<leader>tb"] = [[<cmd>lua require'telescope.builtin'.extensions.project.project{}<cr>]],
         ["<leader>tb"] = [[<cmd>lua require'telescope.builtin'.buffers()<cr>]],
         ["<leader>tf"] = [[<cmd>lua require'telescope.builtin'.current_buffer_fuzzy_find()<cr>]],
         ["<leader>tld"] = [[<cmd>lua require'telescope.builtin'.lsp_document_diagnostics()<cr>]],
@@ -49,6 +51,7 @@ local function buffer()
         ["<C-c>"] = [[<cmd>lua require'bufdelete'.bufdelete()<cr>]],
         ["<C-n>"] = [[<cmd>BufferLineCycleNext<cr>]],
         ["<C-p>"] = [[<cmd>BufferLineCyclePrev<cr>]],
+        ["<leader>bda"] = [[<cmd>BufferCloseAllButCurrent<cr>]],
 
         ["<leader>b"] = [[<cmd>BufferLinePick<cr>]],
 
