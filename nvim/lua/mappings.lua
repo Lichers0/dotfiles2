@@ -136,12 +136,24 @@ local function terminal()
     })
 end
 
-local function ctrlsf()
+local function search()
     keymaps.register("n", {
         ["<Leader>sfp"] = [[<Plug>CtrlSFPrompt]],
         ["<Leader>sft"] = [[<cmd>CtrlSFToggle<cr>]],
       }, {
         noremap = false, silent = false 
+      }
+    )
+    keymaps.register("n", {
+        ["//"] = [[<cmd>nphlsearch<cr>]],
+      }, {
+        noremap = false, silent = true 
+      }
+    )
+    keymaps.register("n", {
+        ["<leader>hl"] = [[<cmd>set hlsearch! hlsearch?<cr>]],
+      }, {
+        noremap = true, silent = false 
       }
     )
 end
@@ -154,7 +166,7 @@ mappings.setup = function()
     editor_motion()
     terminal()
     insert_mode()
-    ctrlsf()
+    search()
 end
 
 return mappings
