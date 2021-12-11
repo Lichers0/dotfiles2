@@ -148,7 +148,7 @@ local function search()
       }
     )
     keymaps.register("n", {
-        ["//"] = [[<cmd>nphlsearch<cr>]],
+        ["//"] = [[<cmd>nohlsearch<cr>]],
       }, {
         noremap = false, silent = true 
       }
