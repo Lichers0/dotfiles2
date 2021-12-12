@@ -4,9 +4,23 @@ function M.setup(capabilities, on_attach)
         return
     end
 
-    require("lspconfig").solargraph.setup({
+    local nvim_lsp = require("lspconfig")
+    nvim_lsp.solargraph.setup({
         capabilities = capabilities,
         on_attach = on_attach,
+        filetypes = {"ruby", "rakefile"},
+        root_dir = nvim_lsp.util.root_pattern("Gemfile", ".git", "."),
+        settings = {
+            solargraph = {
+                autoformat = true,
+                completion = true,
+                diagnostic = true,
+                folding = true,
+                references = true,
+                rename = true,
+                symbols = true
+            }
+        }
     })
 end
 
