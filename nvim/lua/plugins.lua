@@ -10,6 +10,12 @@ local function git(use)
 end
 
 local function language(use)
+    use({
+        "hrsh7th/nvim-cmp",
+        config = function()
+            require("language.plugin_cmp").setup()
+        end,
+    })
     use("rafamadriz/friendly-snippets")
     use({
         "b3nj5m1n/kommentary",
@@ -25,12 +31,6 @@ local function language(use)
         after = "nvim-cmp",
     })
     use("onsails/lspkind-nvim")
-    use({
-        "hrsh7th/nvim-cmp",
-        config = function()
-            require("language.plugin_cmp").setup()
-        end,
-    })
     use({
         "L3MON4D3/LuaSnip",
         config = function()
