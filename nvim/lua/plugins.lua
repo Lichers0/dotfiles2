@@ -186,9 +186,15 @@ local function navigation(use)
     })
     use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
     use({
-        "dyng/ctrlsf.vim",
-        config = function()
-          require("navigation/ctrlsf").setup()
+      "dyng/ctrlsf.vim",
+      config = function()
+        require("navigation/ctrlsf").setup()
+      end,
+    })
+    use({
+      "kevinhwang91/nvim-hlslens",
+      config = function()
+        require("navigation/hlslens").setup()
       end,
     })
 end

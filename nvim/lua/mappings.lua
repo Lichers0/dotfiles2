@@ -159,6 +159,22 @@ local function search()
         noremap = true, silent = false 
       }
     )
+    keymaps.register("n", {
+        ["n"] = [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<cr>]],
+        ["N"] = [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<crCR>]],
+      }, {
+        noremap = true, silent = true
+      }
+    )
+    keymaps.register("n", {
+        ["*"] = [[*<Cmd>lua require('hlslens').start()<CR>]],
+        ["#"] = [[#<Cmd>lua require('hlslens').start()<CR>]],
+        ["g*"] = [[g*<Cmd>lua require('hlslens').start()<CR>]],
+        ["g#"] = [[g#<Cmd>lua require('hlslens').start()<CR>]],
+      }, {
+        noremap = true 
+      }
+    )
 end
 
 mappings.setup = function()
