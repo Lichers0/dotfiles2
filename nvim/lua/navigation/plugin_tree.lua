@@ -12,12 +12,12 @@ end
 vim.g.nvim_tree_indent_markers = 1
 
 require("nvim-tree").setup({
-    update_focused_file = {
-        enable = true,
-    },
-    view = {
-        mappings = {
-            list = mappings,
-        },
-    },
+  update_focused_file = {
+      enable = true,
+  },
+  view = {
+      mappings = {
+          list = mappings,
+      },
+  },
 })
