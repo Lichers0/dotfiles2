@@ -252,10 +252,10 @@ local function theming(use)
     use({
         "sainnhe/gruvbox-material",
         cond = function()
-            return require("conditions").is_current_theme("gruvbox_material")
+            return require("conditions").is_current_theme("gruvbox")
         end,
         config = function()
-            require("theming.theme").setup("gruvbox_material")
+            require("theming.theme").setup("gruvbox")
         end,
     })
     use({

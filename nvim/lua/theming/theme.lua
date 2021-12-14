@@ -5,7 +5,7 @@ M.setup = function(theme)
         material = require("theming.plugin_material").setup,
         onedark = require("theming.plugin_onedark").setup,
         tokyonight = require("theming.plugin_tokyonight").setup,
-        gruvbox_material = require("theming.plugin_gruvbox_material").setup,
+        gruvbox = require("theming.plugin_gruvbox_material").setup,
     }
 
     setup_functions[theme]()
@@ -15,6 +15,7 @@ M.get_lualine = function()
     local mappings = {
         material = "material-nvim",
         onedark = "onedark-nvim",
+        -- gruvbox = "gruvbox-material",
     }
 
     local theme = require("settings").theme().theme

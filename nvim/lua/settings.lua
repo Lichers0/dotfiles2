@@ -2,7 +2,8 @@ local M = {}
 
 function M.theme()
     return {
-        theme = "material",
+        theme = "gruvbox",
+        -- theme = "material",
         -- theme = 'github',
         -- style = dark/dark_default/dimmed/light/light_default
         -- transparent = false,
