@@ -27,16 +27,14 @@ local function functions()
         ["<leader>ntt"] = [[<cmd>NvimTreeToggle<cr>]],
         ["<leader>ntf"] = [[<cmd>lua require'sidebar'.explorer()<cr>]],
         ["<leader>tg"] = [[<cmd>lua require'telescope.builtin'.live_grep()<cr>]],
-        ["<leader>tpf"] = [[<cmd>lua require'telescope.builtin'.project_files()<cr>]],
-        ["<leader>tb"] = [[<cmd>lua require'telescope.builtin'.extensions.project.project{}<cr>]],
         ["<leader>tb"] = [[<cmd>lua require'telescope.builtin'.buffers()<cr>]],
         ["<leader>tf"] = [[<cmd>lua require'telescope.builtin'.current_buffer_fuzzy_find()<cr>]],
         ["<leader>tld"] = [[<cmd>lua require'telescope.builtin'.lsp_document_diagnostics()<cr>]],
-        ["<C-f><C-f>"] = [[<cmd>lua require'navigation.search'.git_or_local()<cr>]],
+        ["<leader>ns"] = [[<cmd>lua require'navigation.search'.git_or_local()<cr>]],
         ["<C-f><C-h>"] = [[<cmd>lua require'telescope.builtin'.oldfiles()<cr>]],
         ["<C-f><C-l>"] = [[<cmd>lua require'telescope.builtin'.lsp_document_symbols()<cr>]],
         ["<C-f><C-s>"] = [[<cmd>lua require'telescope.builtin'.lsp_workspace_symbols()<cr>]],
-        ["<C-s>"] = [[<cmd>lua require'sidebar'.symbols()<cr>]],
+        ["<leader>sb"] = [[<cmd>lua require'sidebar'.symbols()<cr>]],
         ["<C-q>"] = [[<cmd>LspTrouble quickfix<cr>]],
         ["<C-x>"] = [[<cmd>LspTrouble lsp_workspace_diagnostics<cr>]],
     })
@@ -97,8 +95,8 @@ end
 mappings.editor_motion_textsubjects = {
     init_selection = "<CR>",
     scope_incremental = "<CR>",
-    node_incremental = "<TAB>",
-    node_decremental = "<S-TAB>",
+    node_incremental = "<C-k>",
+    node_decremental = "<C-j>",
 }
 
 mappings.explorer = {
@@ -172,7 +170,7 @@ local function search()
         ["g*"] = [[g*<Cmd>lua require('hlslens').start()<CR>]],
         ["g#"] = [[g#<Cmd>lua require('hlslens').start()<CR>]],
       }, {
-        noremap = true 
+        noremap = true
       }
     )
 end

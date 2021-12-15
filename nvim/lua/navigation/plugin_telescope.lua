@@ -14,8 +14,12 @@ function M.setup()
                 },
             },
             mappings = {
-                i = mapping.search(actions),
-                n = mapping.search(actions),
+              i = {
+                ["<C-j>"]   = actions.move_selection_next,
+                ["<C-k>"]   = actions.move_selection_previous,
+                ["<ESC>"]   = actions.close,
+                ["<C-c>"]   = actions.close,
+              },
             },
             layout_strategy = "flex",
         },
