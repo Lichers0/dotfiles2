@@ -17,7 +17,7 @@ end
 
 local function zen()
     keymaps.register("n", {
-        ["<C-z>"] = [[<cmd>ZenMode<cr>]],
+        ["<leader>zm"] = [[<cmd>ZenMode<cr>]],
     })
 end
 
