@@ -37,6 +37,18 @@ local function functions()
         ["<leader>sb"] = [[<cmd>lua require'sidebar'.symbols()<cr>]],
         ["<C-q>"] = [[<cmd>LspTrouble quickfix<cr>]],
         ["<C-x>"] = [[<cmd>LspTrouble lsp_workspace_diagnostics<cr>]],
+    ["<leader>lft"] = [[<cmd>lua vim.lsp.buf.formatting()<cr>]],
+    ["<leader>ldc"] = [[<cmd>lua vim.lsp.buf.declaration()<cr>]],
+    ["<leader>lhv"] = [[<cmd>lua vim.lsp.buf.hover()<cr>]],
+    ["<leader>lrf"] = [[<cmd>lua vim.lsp.buf.references()<cr>]],
+    ["<leader>lds"] = [[<cmd>lua vim.lsp.buf.document_symbol()<cr>]],
+    ["<leader>ldf"] = [[<cmd>lua vim.lsp.buf.definition()<cr>]],
+    ["<leader>lgk"] = [[<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>]],
+    ["<leader>lgn"] = [[<cmd>lua vim.lsp.diagnostic.goto_next()<cr>]],
+    ["<leader>lca"] = [[<cmd>lua vim.lsp.diagnostic.code_action()<cr>]],
+    ["<leader>lim"] = [[<cmd>lua vim.lsp.buf.implementation()<cr>]],
+    ["<leader>lsh"] = [[<cmd>lua vim.lsp.buf.signature_help()<cr>]],
+    ["<leader>lrn"] = [[<cmd>lua vim.lsp.buf.rename()<cr>]],
     })
 end
 
