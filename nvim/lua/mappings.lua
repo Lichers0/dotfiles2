@@ -27,6 +27,7 @@ local function functions()
         ["<leader>ntt"] = [[<cmd>NvimTreeToggle<cr>]],
         ["<leader>ntf"] = [[<cmd>lua require'sidebar'.explorer()<cr>]],
         ["<leader>tg"] = [[<cmd>lua require'telescope.builtin'.live_grep()<cr>]],
+        ["<leader>tr"] = [[<cmd>lua require'telescope.builtin'.grep_string { use_regex = true, }<cr>]],
         ["<leader>tb"] = [[<cmd>lua require'telescope.builtin'.buffers()<cr>]],
         ["<leader>tf"] = [[<cmd>lua require'telescope.builtin'.current_buffer_fuzzy_find()<cr>]],
         ["<leader>tld"] = [[<cmd>lua require'telescope.builtin'.lsp_document_diagnostics()<cr>]],
@@ -171,7 +172,7 @@ local function search()
     )
     keymaps.register("n", {
         ["n"] = [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<cr>]],
-        ["N"] = [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<crCR>]],
+        ["N"] = [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<cr>]],
       }, {
         noremap = true, silent = true
       }
