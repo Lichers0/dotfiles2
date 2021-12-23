@@ -11,8 +11,12 @@ M.setup = function()
       vim.opt.termguicolors = true
     end
 
-    vim.g.gruvbox_material_enable_italic = 1
+    vim.g.gruvbox_material_enable_italic = 0
+    vim.g.gruvbox_material_disable_italic_comment = 1
     vim.g.gruvbox_material_sign_column_background = 'none'
+    vim.g.gruvbox_material_cursor = 'green'
+    -- vim.g.gruvbox_material_transparent_background = 1
+    -- vim.g.gruvbox_material_visual = 'reverse'
     vim.cmd([[color gruvbox-material]])
 end
 
