@@ -17,7 +17,7 @@ function M.setup()
                 vim_item.menu = ({
                     luasnip = "[snip]",
                     buffer = "[buffer]",
-                    cmp_tabnine = "[TN]",
+                    -- cmp_tabnine = "[TN]",
                     nvim_lsp = "[lsp]",
                     nvim_lua = "[lua]",
                     path = "[path]",
@@ -51,7 +51,7 @@ function M.setup()
             { name = "nvim_lua" },
             { name = "path" },
             { name = "buffer" },
-            { name = "cmp_tabnine" },
+            -- { name = "cmp_tabnine" },
         },
     })
 end
