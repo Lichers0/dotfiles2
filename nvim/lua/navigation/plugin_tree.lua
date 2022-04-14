@@ -9,8 +9,6 @@ for key, value in pairs(require("mappings").explorer_nocallback) do
     table.insert(mappings, { key = key, cb = value })
 end
 
-vim.g.nvim_tree_indent_markers = 1
-
 vim.g.nvim_tree_icons = {
      default = '',
      symlink = '',
@@ -18,7 +16,16 @@ vim.g.nvim_tree_icons = {
 }
 
 require("nvim-tree").setup({
-  auto_close = true,
+  renderer = {
+    indent_markers = {
+      enable = true,
+      icons = {
+        corner = "└ ",
+        edge = "│ ",
+        none = "  ",
+      },
+    },
+  },
   update_focused_file = {
       enable = true,
   },
