@@ -315,6 +315,10 @@ local function tpope(use)
   use 'tpope/vim-unimpaired'
 end
 
+local function new_addition(use)
+  use 'jessekelighine/vindent.vim'
+end
+
 require("packer").startup(function(use)
     use("wbthomason/packer.nvim")
 
