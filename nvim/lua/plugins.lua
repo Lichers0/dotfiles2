@@ -86,7 +86,7 @@ local function language(use)
     use({
         "romgrk/nvim-treesitter-context",
         config = function()
-            require("treesitter-context.config").setup({
+            require("treesitter-context").setup({
                 enable = true,
             })
         end,
