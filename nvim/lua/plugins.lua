@@ -317,6 +317,8 @@ end
 
 local function new_addition(use)
   use 'jessekelighine/vindent.vim'
+  use 'mhartington/formatter.nvim'
+  use 'mfussenegger/nvim-lint'
 end
 
 require("packer").startup(function(use)
