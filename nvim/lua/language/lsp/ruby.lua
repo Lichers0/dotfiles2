@@ -14,7 +14,8 @@ function M.setup(capabilities, on_attach)
             solargraph = {
                 autoformat = true,
                 completion = true,
-                diagnostic = true,
+                diagnostics = true,
+                formatting = true,
                 folding = true,
                 references = true,
                 rename = true,

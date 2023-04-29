@@ -14,12 +14,15 @@ require("nvim-tree").setup({
     indent_markers = {
       enable = true,
       icons = {
-        corner = "└ ",
-        edge = "│ ",
-        none = "  ",
+        corner = "└",
+        edge = "│",
+        none = " ",
       },
     },
     icons = {
+      show = {
+        folder_arrow = false,
+      },
       glyphs = {
         default = '',
         symlink = '',
@@ -42,3 +45,7 @@ require("nvim-tree").setup({
       },
   },
 })
+
+
+
+

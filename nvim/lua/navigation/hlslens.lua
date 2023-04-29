@@ -1,6 +1,5 @@
 local M = {}
 function M.setup()
-  -- require("notify")("hlslens - test")
   require('hlslens').setup({
     calm_down = true,
     override_lens = function(render, plist, nearest, idx, r_idx)

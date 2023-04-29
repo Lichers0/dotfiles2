@@ -28,11 +28,10 @@ function M.setup()
         },
         -- TODO: Refactor mapping into mappings.lua
         mapping = {
-            ["<C-k>"] = cmp.mapping.select_prev_item(),
-            ["<C-j>"] = cmp.mapping.select_next_item(),
-            ["<C-l>"] = cmp.mapping.close(),
+            ["<UP>"] = cmp.mapping.select_prev_item(),
+            ["<DOWN>"] = cmp.mapping.select_next_item(),
+            ["<LEFT>"] = cmp.mapping.close(),
             ["<C-Space>"] = cmp.mapping.complete(),
-            ["<C-j>"] = cmp.mapping.select_next_item(),
             ["<CR>"] = cmp.mapping.confirm({
                 behavior = cmp.ConfirmBehavior.Insert,
                 select = true,

@@ -159,13 +159,7 @@ local function search()
       }
     )
     keymaps.register("n", {
-        ["//"] = [[<cmd>nohlsearch<cr>]],
-      }, {
-        noremap = false, silent = true 
-      }
-    )
-    keymaps.register("n", {
-        ["<leader>hl"] = [[<cmd>set hlsearch! hlsearch?<cr>]],
+        ["<leader>ht"] = [[<cmd>set hlsearch! hlsearch?<cr>]],
       }, {
         noremap = true, silent = false 
       }
@@ -188,6 +182,20 @@ local function search()
     )
 end
 
+local function test()
+    keymaps.register("n", {
+      ["<leader>rn"] = [["<cmd>TestNearest<CR>"]], -- Test nearest test
+--[[ [[ vim.api.nvim_set_keymap('n', '<leader>tf', '<cmd>TestFile<CR>', { noremap = true, silent = true}) -- Test file
+vim.api.nvim_set_keymap('n', '<leader>ts', '<cmd>TestSuite<CR>', { noremap = true, silent = true}) -- Test suite
+vim.api.nvim_set_keymap('n', '<leader>tl', '<cmd>TestLast<CR>', { noremap = true, silent = true}) -- Test last test run
+vim.api.nvim_set_keymap('n', '<leader>tv', '<cmd>TestVisit<CR>', { noremap = true, silent = true}) -- Test visit ]]
+      }, {
+        noremap = true, silent = true 
+      }
+    )
+
+end
+
 mappings.setup = function()
     windows()
     zen()
@@ -197,6 +205,7 @@ mappings.setup = function()
     terminal()
     insert_mode()
     search()
+    test()
 end
 
 return mappings

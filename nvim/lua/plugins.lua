@@ -92,6 +92,11 @@ local function language(use)
         end,
         after = "nvim-treesitter",
     })
+    -- use("vim-est/vim-test")
+    --[[ use({
+      "vim-est/vim-test",
+      config = require("language.plugin_vimtest")
+    }) ]]
 
     --[[ use({
       "tzachar/cmp-tabnine",
@@ -202,12 +207,12 @@ end
 
 local function startup(use)
     -- TODO: https://github.com/rmagatti/session-lens maybe with leader + s?
-    use({
+    --[[ use({
         "rmagatti/auto-session",
         config = function()
             require("startup.plugin_auto-session").setup()
         end,
-    })
+    }) ]]
     use({
         "907th/vim-auto-save",
         config = function()
@@ -228,9 +233,6 @@ local function status(use)
         config = function()
             require("status.plugin_lualine").setup()
         end,
-    })
-    use({
-      "rcarriga/nvim-notify"
     })
 end
 
@@ -341,4 +343,7 @@ require("packer").startup(function(use)
     theming(use)
     tpope(use)
     new_addition(use)
+
+    require('config.nvim-notify').setup(use)
+    require('config.nvim-neotest').setup(use)
 end)
