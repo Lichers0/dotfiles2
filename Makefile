@@ -1,7 +1,7 @@
 tmux:
 	ln -s $(PWD)/files/tmux.conf ~/.tmux.conf | true
 astro:
-	ln -snf $(PWD)/astro_vim ~/.config/nvim
+	ln -snf $(PWD)/astro_vim4 ~/.config/nvim
 test:
 	rm -rf ~/.local/share/nvim || exit 0
 	# rm -rf ~/.config/nvim || exit 0
