@@ -1,5 +1,18 @@
+TPM_PATH := ~/.tmux/plugins/tpm
+
+claude:
+	ln -s $(PWD)/files/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json | true
+
 tmux:
 	ln -s $(PWD)/files/tmux.conf ~/.tmux.conf | true
+
+	@echo "🔍 Checking TPM..."
+	@if [ ! -d $(TPM_PATH) ]; then \
+		echo "📦 TPM not found. Installing..."; \
+		git clone https://github.com/tmux-plugins/tpm $(TPM_PATH); \
+	else \
+		echo "✅ TPM already installed."; \
+	fi
 astro:
 	ln -snf $(PWD)/astro_vim4 ~/.config/nvim
 test:

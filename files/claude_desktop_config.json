@@ -1,0 +1,55 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/Denis/Desktop",
+        "/Users/Denis/Library/CloudStorage/Dropbox/wiki"
+      ]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "BSALWpL2AnibGG7mVcFBGr9tJdetnti",
+        "HOME": "/Users/Denis",
+        "NODE_DEBUG": "*"
+      }
+    },
+    "ccusage": {
+      "command": "npx",
+      "args": [
+        "ccusage@latest",
+        "mcp"
+      ],
+      "env": {
+        "HOME": "/Users/Denis"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "iterm-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "iterm-mcp"
+      ]
+    }
+  }
+}
