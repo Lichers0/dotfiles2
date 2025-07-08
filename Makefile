@@ -1,5 +1,7 @@
 TPM_PATH := ~/.tmux/plugins/tpm
 
+.PHONY: lazyvim
+
 claude:
 	ln -s $(PWD)/files/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json | true
 
@@ -13,6 +15,8 @@ tmux:
 	else \
 		echo "✅ TPM already installed."; \
 	fi
+lazyvim:
+	ln -snf $(PWD)/lazyvim ~/.config/nvim
 astro:
 	ln -snf $(PWD)/astro_vim4 ~/.config/nvim
 test:
