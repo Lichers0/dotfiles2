@@ -31,3 +31,8 @@ nvim-configure:
 	mkdir -p $(PACKER_PATH)
 	git clone --depth 1 https://github.com/wbthomason/packer.nvim $(PACKER_PATH)/packer.nvim
 	ln -snf $(PWD)/nvim ~/.config/nvim
+
+# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+# git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# ~/Library/Application Support/Claude/claude_desktop_config.json
+# ~/.config/karabiner/
