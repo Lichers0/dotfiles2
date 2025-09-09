@@ -1,0 +1,32 @@
+{
+  "model": "sonnet",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/dotfiles/scripts/claude/notification-script.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/dotfiles/scripts/claude/stop-script.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  }
+}
