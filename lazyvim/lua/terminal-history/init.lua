@@ -62,6 +62,18 @@ function M.setup_keymaps()
     -- Debug log to confirm mapping was set
     vim.notify("Terminal history: Ctrl-T mapped for terminal mode (Telescope)", vim.log.levels.INFO)
   end
+
+  -- Terminal mode keymap for deleting lines above prompt
+  if keymaps.delete_terminal_lines and keymaps.delete_terminal_lines ~= "" then
+    vim.keymap.set(
+      "t",
+      keymaps.delete_terminal_lines,
+      function()
+        require("terminal-history.core").delete_last_lines(10)
+      end,
+      { desc = "Delete 10 lines above prompt" }
+    )
+  end
 end
 
 -- Public API functions

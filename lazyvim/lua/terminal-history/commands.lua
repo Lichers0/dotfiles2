@@ -46,6 +46,13 @@ function M.setup()
     end
   end, { nargs = "?", desc = "Clear terminal history" })
 
+  -- Delete last N lines from terminal
+  vim.api.nvim_create_user_command("TerminalDeleteLines", function(opts)
+    local core = require("terminal-history.core")
+    local count = tonumber(opts.args) or 10
+    core.delete_last_lines(count)
+  end, { nargs = "?", desc = "Delete last N lines from terminal (default: 10)" })
+
   -- Toggle tracking
   vim.api.nvim_create_user_command("TerminalHistoryToggle", function()
     local core = require("terminal-history.core")

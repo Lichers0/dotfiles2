@@ -41,6 +41,7 @@ return {
           open_in_buffer = "<CR>",
           copy_command = "<C-y>",
           delete_entry = "<C-d>",
+          delete_terminal_lines = "<C-l>", -- Ctrl-L in terminal mode to delete last 10 lines
         },
       })
 

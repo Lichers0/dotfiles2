@@ -36,6 +36,98 @@ function M.register_terminal(bufnr)
   return true
 end
 
+-- Clear terminal screen (like Ctrl+L in bash)
+function M.clear_terminal_screen()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  -- Check if we're in a terminal buffer
+  if vim.bo[bufnr].buftype ~= "terminal" then
+    vim.notify("Not in a terminal buffer", vim.log.levels.WARN)
+    return false
+  end
+
+  -- Send Ctrl+L to the terminal to clear screen
+  local term_id = vim.b[bufnr].terminal_job_id
+  if term_id then
+    vim.api.nvim_chan_send(term_id, "\x0c") -- \x0c is Ctrl+L
+    return true
+  end
+
+  return false
+end
+
+-- Delete N lines above the current prompt line
+function M.delete_last_lines(count)
+  count = count or 10
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  -- Check if we're in a terminal buffer
+  if vim.bo[bufnr].buftype ~= "terminal" then
+    vim.notify("Not in a terminal buffer", vim.log.levels.WARN)
+    return false
+  end
+
+  -- Get total lines in buffer
+  local total_lines = vim.api.nvim_buf_line_count(bufnr)
+
+  -- Get current cursor position (usually at the prompt)
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local cursor_line = cursor_pos[1]
+
+  -- Calculate what to delete: N lines before the prompt
+  -- We keep the prompt line and everything after it
+  local end_line = cursor_line - 1 -- Line just before the prompt
+  local start_line = math.max(1, end_line - count + 1) -- Start of deletion range
+
+  -- Check if there's anything to delete
+  if end_line < 1 or start_line > end_line then
+    vim.notify("No lines to delete above prompt", vim.log.levels.INFO)
+    return false
+  end
+
+  -- Exit terminal mode temporarily to modify buffer
+  vim.cmd("stopinsert")
+
+  -- Make buffer modifiable temporarily
+  local old_modifiable = vim.bo[bufnr].modifiable
+  vim.bo[bufnr].modifiable = true
+
+  -- Delete the lines (0-based indexing for nvim_buf_set_lines)
+  local actual_deleted = end_line - start_line + 1
+  vim.api.nvim_buf_set_lines(bufnr, start_line - 1, end_line, false, {})
+
+  -- Restore modifiable state
+  vim.bo[bufnr].modifiable = old_modifiable
+
+  -- Get the new total line count after deletion
+  local new_total_lines = vim.api.nvim_buf_line_count(bufnr)
+
+  -- Force window to scroll to bottom using API
+  local win = vim.api.nvim_get_current_win()
+
+  -- Set cursor to last line
+  vim.api.nvim_win_set_cursor(win, {new_total_lines, 0})
+
+  -- Scroll window to bottom using window option
+  local height = vim.api.nvim_win_get_height(win)
+  vim.api.nvim_win_call(win, function()
+    vim.cmd("$") -- Go to last line
+    -- Scroll so last line is visible
+    local current_line = vim.fn.line('.')
+    local top_line = math.max(1, current_line - height + 1)
+    vim.fn.winrestview({topline = top_line})
+  end)
+
+  -- Force redraw to update display
+  vim.cmd("redraw!")
+
+  -- Return to terminal insert mode
+  vim.cmd("startinsert")
+
+  vim.notify(string.format("Deleted %d lines above prompt", actual_deleted), vim.log.levels.INFO)
+  return true
+end
+
 -- Unregister terminal (when closed)
 function M.unregister_terminal(term_id)
   if M.terminals[term_id] then
