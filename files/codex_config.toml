@@ -1,0 +1,25 @@
+model = "gpt-5-codex"
+model_reasoning_effort = "high"
+[projects."/Users/romodanov.d/work/gosling"]
+trust_level = "trusted"
+
+[mcp_servers.brave-search]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-brave-search"]
+
+[mcp_servers.brave-search.env]
+BRAVE_API_KEY = "BSALWpL2AnibGG7mVcFBGr9tJdetnti"
+HOME = "/Users/romodanov.d"
+NODE_DEBUG = "*"
+
+[mcp_servers.fetch]
+command = "uvx"
+args = ["mcp-server-fetch"]
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/Users/romodanov.d/Desktop", "/Users/romodanov.d/work/"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]

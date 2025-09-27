@@ -5,8 +5,8 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/Denis/Desktop",
-        "/Users/Denis/Library/CloudStorage/Dropbox/wiki"
+        "/Users/romodanov.d/Desktop",
+        "/Users/romodanov.d/work/"
       ]
     },
     "fetch": {
@@ -23,7 +23,7 @@
       ],
       "env": {
         "BRAVE_API_KEY": "BSALWpL2AnibGG7mVcFBGr9tJdetnti",
-        "HOME": "/Users/Denis",
+        "HOME": "/Users/romodanov.d",
         "NODE_DEBUG": "*"
       }
     },
@@ -34,7 +34,7 @@
         "mcp"
       ],
       "env": {
-        "HOME": "/Users/Denis"
+        "HOME": "/Users/romodanov.d"
       }
     },
     "context7": {
@@ -43,13 +43,9 @@
         "-y",
         "@upstash/context7-mcp"
       ]
-    },
-    "iterm-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "iterm-mcp"
-      ]
     }
+  },
+  "preferences": {
+    "menuBarEnabled": false
   }
 }
