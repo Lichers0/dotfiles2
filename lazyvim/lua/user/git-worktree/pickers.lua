@@ -19,7 +19,7 @@ M.confirm_picker = function(title, on_confirm, on_cancel)
   pickers
     .new(opts, {
       finder = finders.new_table({
-        results = { "Yes", "No" },
+        results = { "No", "Yes" },
       }),
       sorter = conf.generic_sorter(opts),
       attach_mappings = function(prompt_bufnr, map)
@@ -116,6 +116,56 @@ M.worktree_picker = function(on_switch, on_delete)
             if on_delete then
               on_delete(selection.value)
             end
+          end
+        end)
+
+        return true
+      end,
+    })
+    :find()
+end
+
+-- Universal branch picker with support for custom input
+M.branch_picker = function(prompt_title, default_value, on_select)
+  local utils = require("user.git-worktree.utils")
+  local branches = utils.get_all_branches()
+
+  local opts = themes.get_dropdown({
+    prompt_title = prompt_title,
+    default_text = default_value or "",
+    layout_config = {
+      width = 0.6,
+      height = 0.4,
+    },
+  })
+
+  pickers
+    .new(opts, {
+      finder = finders.new_table({
+        results = branches,
+      }),
+      sorter = conf.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          local selection = action_state.get_selected_entry()
+          local picker = action_state.get_current_picker(prompt_bufnr)
+          local input_text = picker:_get_prompt()
+
+          actions.close(prompt_bufnr)
+
+          -- If there's a selection, use it; otherwise use input text
+          local branch_name
+          if selection then
+            branch_name = selection[1]
+          elseif input_text and input_text ~= "" then
+            branch_name = input_text
+          else
+            vim.notify("Название ветки не может быть пустым", vim.log.levels.ERROR)
+            return
+          end
+
+          if on_select then
+            on_select(branch_name)
           end
         end)
 

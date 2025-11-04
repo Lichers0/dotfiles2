@@ -5,6 +5,7 @@ local pickers = require("user.git-worktree.pickers")
 local config = require("user.git-worktree.config")
 
 M.create_worktree = function()
+  -- Step 1: Check if current directory is a git repo
   if not utils.is_git_repo() then
     vim.notify(
       "Текущая директория не является git репозиторием",
@@ -13,32 +14,89 @@ M.create_worktree = function()
     return
   end
 
-  local current_branch = utils.get_current_branch()
-  local prompt = string.format("Название новой ветки (на основе %s): ", current_branch)
+  -- Step 2: Check if master or main branch exists in worktree list
+  local has_main, main_branch_name = utils.has_main_branch_worktree()
+  if not has_main then
+    vim.notify(
+      "Не найден worktree с веткой master или main. Создание новых worktree невозможно",
+      vim.log.levels.ERROR
+    )
+    return
+  end
 
-  pickers.input_picker(prompt, "", function(branch_name)
-    local valid, err = utils.validate_branch_name(branch_name)
-    if not valid then
-      vim.notify(err, vim.log.levels.ERROR)
-      return
+  -- Step 3: Interactive branch selection/input
+  pickers.branch_picker("Выберите или введите название ветки", "", function(branch_name)
+    -- Step 4: Determine if branch is new or existing
+    local branch_exists = utils.branch_exists(branch_name)
+
+    if branch_exists then
+      -- Branch exists - create worktree with existing branch
+      -- Check if worktree with this branch already exists
+      local existing_worktrees = utils.get_worktree_list()
+      for _, wt in ipairs(existing_worktrees) do
+        if wt.branch == branch_name then
+          vim.notify("Worktree с веткой '" .. branch_name .. "' уже существует", vim.log.levels.ERROR)
+          return
+        end
+      end
+
+      vim.notify("Создание worktree для существующей ветки '" .. branch_name .. "'...", vim.log.levels.INFO)
+
+      local success, result = utils.create_worktree(branch_name, nil, false)
+      if not success then
+        vim.notify("Ошибка создания worktree: " .. result, vim.log.levels.ERROR)
+        return
+      end
+
+      vim.notify("Worktree создан: " .. result, vim.log.levels.INFO)
+
+      pickers.confirm_picker(config.options.confirm_messages.switch_after_create, function()
+        utils.switch_worktree(result)
+        vim.notify("Переключено на worktree: " .. branch_name, vim.log.levels.INFO)
+
+        -- Setup symlinks for new worktree
+        vim.schedule(function()
+          utils.setup_worktree_symlinks(result)
+        end)
+      end, function()
+        vim.notify("Остаёмся в текущем worktree", vim.log.levels.INFO)
+      end)
+    else
+      -- Branch doesn't exist - need to select base branch
+      -- Step 5: Select base branch for new branch
+      local prompt = string.format("Выберите базовую ветку для создания '%s'", branch_name)
+      pickers.branch_picker(prompt, main_branch_name, function(base_branch)
+        -- Step 6: Validate and create new worktree
+        local valid, err = utils.validate_branch_name(branch_name, base_branch)
+        if not valid then
+          vim.notify(err, vim.log.levels.ERROR)
+          return
+        end
+
+        vim.notify("Создание worktree с новой веткой '" .. branch_name .. "' на основе '" .. base_branch .. "'...", vim.log.levels.INFO)
+
+        local success, result = utils.create_worktree(branch_name, base_branch, true)
+        if not success then
+          vim.notify("Ошибка создания worktree: " .. result, vim.log.levels.ERROR)
+          return
+        end
+
+        vim.notify("Worktree создан: " .. result, vim.log.levels.INFO)
+
+        -- Step 7 & 8: Offer to switch
+        pickers.confirm_picker(config.options.confirm_messages.switch_after_create, function()
+          utils.switch_worktree(result)
+          vim.notify("Переключено на worktree: " .. branch_name, vim.log.levels.INFO)
+
+          -- Setup symlinks for new worktree
+          vim.schedule(function()
+            utils.setup_worktree_symlinks(result)
+          end)
+        end, function()
+          vim.notify("Остаёмся в текущем worktree", vim.log.levels.INFO)
+        end)
+      end)
     end
-
-    vim.notify("Создание worktree...", vim.log.levels.INFO)
-
-    local success, result = utils.create_worktree(branch_name, current_branch)
-    if not success then
-      vim.notify("Ошибка создания worktree: " .. result, vim.log.levels.ERROR)
-      return
-    end
-
-    vim.notify("Worktree создан: " .. result, vim.log.levels.INFO)
-
-    pickers.confirm_picker(config.options.confirm_messages.switch_after_create, function()
-      utils.switch_worktree(result)
-      vim.notify("Переключено на worktree: " .. branch_name, vim.log.levels.INFO)
-    end, function()
-      vim.notify("Остаёмся в текущем worktree", vim.log.levels.INFO)
-    end)
   end)
 end
 

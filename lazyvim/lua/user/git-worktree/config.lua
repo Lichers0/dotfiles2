@@ -8,7 +8,14 @@ M.options = {
     switch_after_create = "Переключиться на новую ветку?",
     delete_worktree = "Удалить worktree?",
     delete_folder = "Удалить папку worktree?",
+    add_to_gitignore = "Добавить %s в .gitignore?",
   },
+  -- Symlink configuration
+  symlink_folders = { ".claude", "spec" },
+  auto_add_to_gitignore = true,
+  skip_gitignore_confirmation = false, -- Если true, добавляет в .gitignore без подтверждения
+  auto_stage_gitignore = true, -- Если true, автоматически добавляет .gitignore в git index
+  create_missing_folders = true,
 }
 
 M.setup = function(opts)
