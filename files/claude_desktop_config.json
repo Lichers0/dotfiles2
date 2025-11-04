@@ -27,21 +27,28 @@
         "NODE_DEBUG": "*"
       }
     },
-    "ccusage": {
-      "command": "npx",
-      "args": [
-        "ccusage@latest",
-        "mcp"
-      ],
-      "env": {
-        "HOME": "/Users/romodanov.d"
-      }
-    },
     "context7": {
       "command": "npx",
       "args": [
         "-y",
         "@upstash/context7-mcp"
+      ]
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "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"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
       ]
     }
   },

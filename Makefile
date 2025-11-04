@@ -5,6 +5,9 @@ TPM_PATH := ~/.tmux/plugins/tpm
 claude:
 	ln -s $(PWD)/files/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json | true
 
+ccstatusline:
+	ln -snf $(PWD)/files/ccstatusline ~/.config/ccstatusline | true
+
 tmux:
 	ln -s $(PWD)/files/tmux.conf ~/.tmux.conf | true
 
