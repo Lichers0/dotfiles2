@@ -4,9 +4,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/Users/romodanov.d/Desktop",
-        "/Users/romodanov.d/work/"
+        "@modelcontextprotocol/server-filesystem"
       ]
     },
     "fetch": {
@@ -22,9 +20,7 @@
         "@modelcontextprotocol/server-brave-search"
       ],
       "env": {
-        "BRAVE_API_KEY": "BSALWpL2AnibGG7mVcFBGr9tJdetnti",
-        "HOME": "/Users/romodanov.d",
-        "NODE_DEBUG": "*"
+        "BRAVE_API_KEY": "BSALWpL2AnibGG7mVcFBGr9tJdetnti"
       }
     },
     "context7": {
@@ -50,6 +46,32 @@
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
       ]
+    },
+    "reddit": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-reddit"
+      ]
+    },
+    "Bright Data": {
+      "command": "npx",
+      "args": [
+        "@brightdata/mcp"
+      ],
+      "env": {
+        "API_TOKEN": "f420ee84-30ed-4e13-9f8a-0bd2d6f6d18a",
+        "PRO_MODE": "true"
+      }
+    },
+    "tavily-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp@0.1.2"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "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"
+      }
     }
   },
   "preferences": {
