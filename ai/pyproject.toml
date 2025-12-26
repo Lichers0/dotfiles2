@@ -1,0 +1,16 @@
+[project]
+name = "aiwr"
+version = "0.1.0"
+description = "Universal CLI wrapper for AI coding assistants with session logging"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+aiwr = "aiwr.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
