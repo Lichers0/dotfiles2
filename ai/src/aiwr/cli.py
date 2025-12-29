@@ -6,6 +6,7 @@ import sys
 
 from . import __version__
 from .agents import get_agent, list_agents
+from .models import MODELS, get_default_model, merge_extra_args, resolve_model
 from .resume import build_resume_prompt, build_resume_tree_prompt, get_session_agent
 from .runner import Runner
 from .tree import format_session_list, list_all_sessions
@@ -71,6 +72,14 @@ def main() -> int:
         help="List all sessions",
     )
 
+    parser.add_argument(
+        "--model",
+        nargs="?",
+        const=True,
+        default=None,
+        help="Model to use. Without value: show available models table",
+    )
+
     # Parse known args to handle -- separator
     args, extra_args = parser.parse_known_args()
 
@@ -82,6 +91,10 @@ def main() -> int:
     if args.list:
         return handle_list()
 
+    # Handle --model without value (show table)
+    if args.model is True:
+        return handle_models()
+
     # Handle --resume
     if args.resume:
         return handle_resume(args.resume, args.prompt, extra_args)
@@ -92,7 +105,7 @@ def main() -> int:
 
     # Handle regular prompt execution
     if args.prompt:
-        return handle_prompt(args.agent, args.prompt, args.parent, args.session, extra_args)
+        return handle_prompt(args.agent, args.prompt, args.parent, args.session, args.model, extra_args)
 
     # No action specified
     parser.print_help()
@@ -110,6 +123,34 @@ def handle_list() -> int:
     output = format_session_list(sessions)
     print(output)
     return 0
+
+
+def handle_models() -> int:
+    """Handle --model command without value (show models table)."""
+    output = format_models_table()
+    print(output)
+    return 0
+
+
+def format_models_table() -> str:
+    """Format models table for all agents."""
+    lines = []
+
+    for agent_name, models in MODELS.items():
+        lines.append(f"{agent_name.capitalize()} models:")
+        lines.append(f"  {'Alias':<12} {'Default':<9} {'Model ID':<30} {'Extra args'}")
+        lines.append(f"  {'-'*12} {'-'*9} {'-'*30} {'-'*15}")
+
+        for model in models:
+            alias = model["alias"]
+            default = "✓" if model["default"] else ""
+            model_id = model["model_id"]
+            extra = ", ".join(model["extra_args"]) if model["extra_args"] else "-"
+            lines.append(f"  {alias:<12} {default:<9} {model_id:<30} {extra}")
+
+        lines.append("")
+
+    return "\n".join(lines).rstrip()
 
 
 def handle_resume(session_id: str, additional_prompt: str | None, extra_args: list[str]) -> int:
@@ -141,10 +182,28 @@ def handle_prompt(
     prompt: str,
     parent_id: str | None,
     session_id: str | None,
-    extra_args: list[str],
+    model_alias: str | None,
+    cli_extra_args: list[str],
 ) -> int:
     """Handle regular prompt execution."""
-    return _run_agent(agent_name, prompt, parent_id, session_id, extra_args)
+    try:
+        # Resolve model
+        if model_alias:
+            model_info = resolve_model(agent_name, model_alias)
+        else:
+            model_info = get_default_model(agent_name)
+
+        # Merge extra args: model args + CLI args (CLI overrides)
+        merged_args = merge_extra_args(model_info.extra_args, cli_extra_args)
+
+        # Add --model to extra_args
+        final_args = ["--model", model_info.model_id] + merged_args
+
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    return _run_agent(agent_name, prompt, parent_id, session_id, final_args)
 
 
 def _run_agent(
