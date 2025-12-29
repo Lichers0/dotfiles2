@@ -356,6 +356,73 @@ class MultiDeleteDialog(ModalScreen[bool]):
         self.dismiss(event.button.id == "delete")
 
 
+class UncommittedWarningDialog(ModalScreen[bool]):
+    """Dialog warning about uncommitted changes in base branch."""
+
+    CSS = """
+    UncommittedWarningDialog {
+        align: center middle;
+    }
+    UncommittedWarningDialog > Container {
+        width: 60;
+        height: auto;
+        max-height: 80%;
+        border: thick $warning;
+        background: $surface;
+        padding: 1 2;
+    }
+    UncommittedWarningDialog .title {
+        width: 100%;
+        text-align: center;
+        text-style: bold;
+        color: $warning;
+        margin-bottom: 1;
+    }
+    UncommittedWarningDialog .branch-info {
+        margin-bottom: 1;
+    }
+    UncommittedWarningDialog .files-label {
+        text-style: bold;
+        margin-bottom: 1;
+    }
+    UncommittedWarningDialog .file-item {
+        color: $text-muted;
+        margin-left: 2;
+    }
+    UncommittedWarningDialog Horizontal {
+        width: 100%;
+        height: auto;
+        align: center middle;
+        margin-top: 1;
+    }
+    UncommittedWarningDialog Button {
+        margin: 0 1;
+    }
+    """
+
+    def __init__(self, branch: str, files: list[str]):
+        super().__init__()
+        self.branch = branch
+        self.files = files[:10]  # Limit to 10 files
+        self.has_more = len(files) > 10
+
+    def compose(self) -> ComposeResult:
+        with Container():
+            yield Label("⚠ Uncommitted changes in base branch", classes="title")
+            yield Label(f"Branch: {self.branch}", classes="branch-info")
+            yield Label("Modified files:", classes="files-label")
+            for f in self.files:
+                yield Label(f"• {f}", classes="file-item")
+            if self.has_more:
+                yield Label(f"  ... and {len(self.files) - 10} more", classes="file-item")
+            with Horizontal():
+                yield Button("Continue anyway", id="continue", variant="warning")
+                yield Button("Cancel", id="cancel")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.dismiss(event.button.id == "continue")
+
+
 class BranchItem(ListItem):
     """List item representing a branch with status indicators."""
 
@@ -374,25 +441,27 @@ class BranchItem(ListItem):
         self.status = status
         self.selected_for_delete = selected
 
+    # Column widths for alignment
+    BRANCH_WIDTH = 20
+    STATUS_WIDTH = 12
+    SYNC_WIDTH = 8
+
     def compose(self) -> ComposeResult:
-        # Build status string
-        parts = []
+        # Column 1: Worktree indicator (emoji = 2 visual chars)
+        wt_icon = "📁" if self.has_worktree else "· "
 
-        # Current branch indicator
-        prefix = "● " if self.is_current else "  "
-
-        # Multi-select indicator
+        # Column 2: Current/select indicator (fixed 2 chars)
         if self.selected_for_delete:
-            prefix = "☑ "
+            current_icon = "☑ "
+        elif self.is_current:
+            current_icon = "● "
+        else:
+            current_icon = "  "
 
-        # Branch name
-        parts.append(f"{prefix}{self.branch}")
+        # Column 3: Branch name (fixed width, left-aligned)
+        branch_col = f"{self.branch:<{self.BRANCH_WIDTH}}"
 
-        # Worktree indicator
-        if self.has_worktree:
-            parts.append("[wt]")
-
-        # Status indicators (only for worktrees or current branch)
+        # Column 4: Status indicators (fixed width)
         status_parts = []
         if self.status.dirty:
             status_parts.append("*")
@@ -404,25 +473,22 @@ class BranchItem(ListItem):
             status_parts.append("[M]")
         if self.status.has_stash:
             status_parts.append("[S]")
+        status_col = f"{' '.join(status_parts):<{self.STATUS_WIDTH}}"
 
-        if status_parts:
-            parts.append(" ".join(status_parts))
-
-        # Ahead/behind
+        # Column 5: Ahead/behind (fixed width)
         ab_parts = []
         if self.status.ahead > 0:
             ab_parts.append(f"↑{self.status.ahead}")
         if self.status.behind > 0:
             ab_parts.append(f"↓{self.status.behind}")
-        if ab_parts:
-            parts.append(" ".join(ab_parts))
+        sync_col = f"{' '.join(ab_parts):<{self.SYNC_WIDTH}}"
 
-        # Last commit time
-        time_str = format_time_ago(self.status.last_commit_time)
-        if time_str:
-            parts.append(time_str)
+        # Column 6: Last commit time
+        time_col = format_time_ago(self.status.last_commit_time)
 
-        yield Label(" ".join(parts))
+        # Combine all columns
+        line = f"{wt_icon} {current_icon}{branch_col} {status_col} {sync_col} {time_col}"
+        yield Label(line)
 
 
 class WorktreeApp(App[Path | None]):
@@ -488,6 +554,8 @@ class WorktreeApp(App[Path | None]):
         self.worktrees = manager.list_worktrees()
         self.branches = manager.list_local_branches()
         self.current_branch = manager.get_current_branch()
+        # Base branch for new worktrees (branch where app was launched)
+        self.base_branch = self.current_branch or manager.get_main_branch()
         self.result_path: Path | None = None
         self.selected_branches: set[str] = set()
         self._status_cache: dict[str, BranchStatus] = {}
@@ -539,6 +607,10 @@ class WorktreeApp(App[Path | None]):
             selected = branch in self.selected_branches
             list_view.append(BranchItem(branch, has_wt, is_current, status, selected))
 
+        # Auto-select first item
+        if len(list_view.children) > 0:
+            list_view.index = 0
+
     def _update_preview(self, branch: str) -> None:
         """Update commit preview for branch."""
         if not self.config.ui.show_preview:
@@ -563,36 +635,48 @@ class WorktreeApp(App[Path | None]):
             self._refresh_branch_list(event.value)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
+        """Handle Enter in filter input - always create new branch."""
         if event.input.id == "branch-input":
             branch_name = event.value.strip()
             if branch_name:
-                self._handle_branch_selection(branch_name)
+                # Always open create dialog for new branch
+                is_new = not self.manager.branch_exists(branch_name)
+                self.push_screen(
+                    CreateWorktreeDialog(branch_name, self.base_branch, self.branches, is_new),
+                    self._on_create_dialog,
+                )
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
+        """Handle Enter on branch list - switch to existing or create worktree."""
         if isinstance(event.item, BranchItem):
-            self._handle_branch_selection(event.item.branch)
+            branch = event.item.branch
+            if branch in self.worktrees:
+                # Worktree exists - ask to switch
+                self._selected_branch_for_switch = branch
+                self.push_screen(
+                    ConfirmDialog(f"Switch to {branch}?"),
+                    self._on_switch_confirm,
+                )
+            else:
+                # No worktree - create it
+                is_new = not self.manager.branch_exists(branch)
+                self.push_screen(
+                    CreateWorktreeDialog(branch, self.base_branch, self.branches, is_new),
+                    self._on_create_dialog,
+                )
+
+    def _on_switch_confirm(self, confirm: bool) -> None:
+        """Handle switch confirmation for existing worktree."""
+        if confirm and hasattr(self, "_selected_branch_for_switch"):
+            branch = self._selected_branch_for_switch
+            if branch in self.worktrees:
+                self.manager.update_symlink(branch)
+                self.result_path = self.worktrees[branch]
+                self.exit(self.result_path)
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
         if isinstance(event.item, BranchItem):
             self._update_preview(event.item.branch)
-
-    def _handle_branch_selection(self, branch: str) -> None:
-        """Handle selection of a branch (from input or list)."""
-        if branch in self.worktrees:
-            # Worktree exists - show action dialog
-            path = self.worktrees[branch]
-            self.push_screen(
-                WorktreeActionDialog(branch, path),
-                self._on_worktree_action,
-            )
-        else:
-            # No worktree - offer to create
-            is_new = not self.manager.branch_exists(branch)
-            default_base = self.config.worktree.default_base or self.manager.get_main_branch()
-            self.push_screen(
-                CreateWorktreeDialog(branch, default_base, self.branches, is_new),
-                self._on_create_dialog,
-            )
 
     def _on_worktree_action(self, action: str | None) -> None:
         """Handle worktree action dialog result."""
@@ -616,6 +700,27 @@ class WorktreeApp(App[Path | None]):
             return
 
         branch, base = result
+        # Store for later use in callbacks
+        self._pending_create = (branch, base)
+
+        # Check for uncommitted files in base branch
+        uncommitted = self.manager.get_uncommitted_files(base)
+        if uncommitted:
+            self.push_screen(
+                UncommittedWarningDialog(base, uncommitted),
+                self._on_uncommitted_warning,
+            )
+        else:
+            self._do_create_worktree(branch, base)
+
+    def _on_uncommitted_warning(self, proceed: bool) -> None:
+        """Handle uncommitted warning dialog result."""
+        if proceed and hasattr(self, "_pending_create"):
+            branch, base = self._pending_create
+            self._do_create_worktree(branch, base)
+
+    def _do_create_worktree(self, branch: str, base: str) -> None:
+        """Actually create the worktree."""
         try:
             path = self.manager.create_worktree(branch, base)
             self._update_status(f"Created worktree: {path}")

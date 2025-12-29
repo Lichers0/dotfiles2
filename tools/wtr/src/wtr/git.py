@@ -1,5 +1,6 @@
 """Git operations for worktree management."""
 
+import shutil
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -34,13 +35,12 @@ class CommitInfo:
 class GitWorktreeManager:
     """Manages git worktrees for a repository."""
 
-    WORKTREES_DIR = "wtrees"
-
     def __init__(self, path: Path | None = None):
         """Initialize manager from path (defaults to cwd)."""
         self.repo = self._find_repo(path or Path.cwd())
         self.root = Path(self.repo.working_dir)
-        self.wtrees_dir = self.root / self.WORKTREES_DIR
+        # Container is parent directory where worktrees live side by side
+        self.container = self.root.parent
 
     def _find_repo(self, path: Path) -> Repo:
         """Find git repository from path, walking up if needed."""
@@ -50,14 +50,115 @@ class GitWorktreeManager:
             raise RuntimeError(f"Not a git repository: {path}")
 
     def get_main_branch(self) -> str:
-        """Determine main branch name (main or master)."""
+        """Determine main branch name from origin/HEAD or fallback to main/master."""
+        # Try to get from origin/HEAD
+        try:
+            ref = self.repo.git.symbolic_ref("refs/remotes/origin/HEAD", short=True)
+            # ref is "origin/master" or "origin/main"
+            if ref.startswith("origin/"):
+                return ref[7:]  # strip "origin/"
+        except Exception:
+            pass
+
+        # Fallback: check if main/master exists
         branches = [b.name for b in self.repo.branches]
         if "main" in branches:
             return "main"
         if "master" in branches:
             return "master"
-        # Fallback to first branch or HEAD
-        return branches[0] if branches else "HEAD"
+
+        # Last resort: current branch or first branch
+        current = self.get_current_branch()
+        if current:
+            return current
+
+        return branches[0] if branches else "master"
+
+    def get_main_repo_path(self) -> Path:
+        """
+        Get path to main repository (where .git is a directory).
+
+        In worktree structure, this is container/<main_branch>/.
+        """
+        main_branch = self.get_main_branch()
+        return self.container / main_branch
+
+    def is_valid_structure(self) -> bool:
+        """
+        Check if repository has valid worktree structure.
+
+        Valid structure means:
+        - Root folder name matches main branch name (e.g., /project/master/)
+        - Or this is already a worktree (.git is a file, not directory)
+        """
+        main_branch = self.get_main_branch()
+        root_folder_name = self.root.name
+
+        # If folder name matches main branch - valid
+        if root_folder_name == main_branch:
+            return True
+
+        # If .git is a file (worktree link) - we're in a worktree, valid
+        git_path = self.root / ".git"
+        if git_path.is_file():
+            return True
+
+        return False
+
+    def needs_restructure(self) -> bool:
+        """Check if repository needs restructuring to worktree format."""
+        if self.is_valid_structure():
+            return False
+
+        # Check we're on main branch
+        current = self.get_current_branch()
+        main = self.get_main_branch()
+
+        return current == main
+
+    def restructure_to_worktree(self) -> Path:
+        """
+        Restructure repository to worktree format.
+
+        Transforms:
+            /myproject/          (contains master branch)
+                .git/
+                src/
+
+        Into:
+            /myproject/          (container)
+                master/          (main branch moved here)
+                    .git/
+                    src/
+
+        Returns path to new root (e.g., /myproject/master/).
+        """
+        main_branch = self.get_main_branch()
+        original_name = self.root.name
+        parent = self.root.parent
+
+        # Step 1: Rename current folder to _temp
+        temp_path = parent / f"{original_name}_temp"
+        self.root.rename(temp_path)
+
+        # Step 2: Create new container with original name
+        new_container = parent / original_name
+        new_container.mkdir()
+
+        # Step 3: Move _temp inside container
+        temp_inside = new_container / f"{original_name}_temp"
+        shutil.move(str(temp_path), str(temp_inside))
+
+        # Step 4: Rename to main branch name
+        new_root = new_container / main_branch
+        temp_inside.rename(new_root)
+
+        # Step 5: Update internal state
+        self.repo = Repo(new_root)
+        self.root = new_root
+        self.container = new_container
+
+        return new_root
 
     def list_local_branches(self) -> list[str]:
         """List all local branch names."""
@@ -66,12 +167,26 @@ class GitWorktreeManager:
     def list_worktrees(self) -> dict[str, Path]:
         """Return dict of {branch_name: worktree_path} for existing worktrees."""
         worktrees = {}
-        if not self.wtrees_dir.exists():
+
+        # Worktrees are sibling directories in container
+        if not self.container.exists():
             return worktrees
 
-        for item in self.wtrees_dir.iterdir():
-            if item.is_dir() and (item / ".git").exists():
-                # Get branch name from worktree
+        # Include main repo as worktree
+        main_branch = self.get_main_branch()
+        main_repo_path = self.get_main_repo_path()
+        if main_repo_path.exists():
+            worktrees[main_branch] = main_repo_path
+
+        for item in self.container.iterdir():
+            if not item.is_dir():
+                continue
+            # Skip main repo directory (already added)
+            if item == main_repo_path:
+                continue
+            # Check if it's a git worktree (.git file, not directory)
+            git_path = item / ".git"
+            if git_path.is_file():
                 try:
                     wt_repo = Repo(item)
                     if not wt_repo.head.is_detached:
@@ -92,7 +207,7 @@ class GitWorktreeManager:
 
     def get_worktree_path(self, branch: str) -> Path:
         """Get path where worktree for branch would be located."""
-        return self.wtrees_dir / branch
+        return self.container / branch
 
     def create_worktree(self, branch: str, base_branch: str | None = None) -> Path:
         """
@@ -100,11 +215,10 @@ class GitWorktreeManager:
 
         If branch doesn't exist, creates it from base_branch.
         Returns path to created worktree.
+        Worktree is created in container directory (sibling to main repo).
+        Also creates 'wt' symlink pointing to main repo's wt symlink.
         """
         worktree_path = self.get_worktree_path(branch)
-
-        # Ensure wtrees directory exists
-        self.wtrees_dir.mkdir(exist_ok=True)
 
         if worktree_path.exists():
             raise RuntimeError(f"Directory already exists: {worktree_path}")
@@ -120,10 +234,11 @@ class GitWorktreeManager:
         except GitCommandError as e:
             raise RuntimeError(f"Failed to create worktree: {e}")
 
-        # Create symlink inside worktree pointing to root's wt symlink
+        # Create symlink wt -> ../<main_branch> (directory, not symlink to avoid cycles)
+        main_branch = self.get_main_branch()
         inner_symlink = worktree_path / "wt"
         if not inner_symlink.exists():
-            inner_symlink.symlink_to("../../wt")
+            inner_symlink.symlink_to(f"../{main_branch}")
 
         return worktree_path
 
@@ -149,12 +264,13 @@ class GitWorktreeManager:
         return self.repo.active_branch.name
 
     def update_symlink(self, branch: str) -> None:
-        """Update 'wt' symlink in repo root to point to worktree."""
+        """Update 'wt' symlink in main repo to point to selected worktree."""
         worktrees = self.list_worktrees()
         if branch not in worktrees:
             return
 
-        symlink_path = self.root / "wt"
+        main_repo = self.get_main_repo_path()
+        symlink_path = main_repo / "wt"
         target = worktrees[branch]
 
         # Remove existing symlink
@@ -163,13 +279,9 @@ class GitWorktreeManager:
         elif symlink_path.exists():
             return  # Don't overwrite non-symlink
 
-        # Create relative symlink
-        try:
-            rel_target = target.relative_to(self.root)
-            symlink_path.symlink_to(rel_target)
-        except ValueError:
-            # Fallback to absolute if relative fails
-            symlink_path.symlink_to(target)
+        # Create relative symlink: ../<branch>
+        rel_target = f"../{target.name}"
+        symlink_path.symlink_to(rel_target)
 
     def get_branch_status(self, branch: str) -> BranchStatus:
         """Get detailed status for a branch."""
@@ -317,3 +429,38 @@ class GitWorktreeManager:
             except RuntimeError as e:
                 results[branch] = str(e)
         return results
+
+    def get_uncommitted_files(self, branch: str) -> list[str]:
+        """
+        Get list of uncommitted files in worktree for branch.
+
+        Returns empty list if no worktree exists or working tree is clean.
+        """
+        worktrees = self.list_worktrees()
+        if branch not in worktrees:
+            # Check if it's the current branch in main repo
+            if branch == self.get_current_branch():
+                repo = self.repo
+            else:
+                return []
+        else:
+            try:
+                repo = Repo(worktrees[branch])
+            except Exception:
+                return []
+
+        files = []
+
+        # Modified files (staged and unstaged)
+        for item in repo.index.diff(None):
+            files.append(item.a_path)
+
+        # Staged files
+        for item in repo.index.diff("HEAD"):
+            if item.a_path not in files:
+                files.append(item.a_path)
+
+        # Untracked files
+        files.extend(repo.untracked_files)
+
+        return sorted(set(files))

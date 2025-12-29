@@ -14,7 +14,6 @@ else:
 class WorktreeConfig:
     """Worktree-related settings."""
 
-    dir: str = "wtrees"
     default_base: str = ""  # empty = auto-detect (main or master)
 
 
@@ -79,7 +78,6 @@ def load_config(repo_root: Path | None = None) -> Config:
     if "worktree" in data:
         wt = data["worktree"]
         config.worktree = WorktreeConfig(
-            dir=wt.get("dir", config.worktree.dir),
             default_base=wt.get("default_base", config.worktree.default_base),
         )
 

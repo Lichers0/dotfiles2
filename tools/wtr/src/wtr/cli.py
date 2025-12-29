@@ -182,6 +182,12 @@ def main() -> int:
             print(str(e), file=sys.stderr)
             return 2
 
+    # Check structure before worktree operations
+    if not manager.is_valid_structure():
+        result = handle_restructure(manager)
+        if result is not None:
+            return result
+
     # Handle quick branch argument
     if args.branch:
         return handle_quick_branch(manager, args.branch, args.base, config)
@@ -192,6 +198,51 @@ def main() -> int:
         print(result)
         return 0
     return 1
+
+
+def handle_restructure(manager: GitWorktreeManager) -> int | None:
+    """
+    Handle repository restructuring prompt.
+
+    Returns:
+        None - if restructure succeeded, continue execution
+        int - exit code if should stop execution
+    """
+    main_branch = manager.get_main_branch()
+
+    print(
+        f"Repository is not in worktree structure.\n"
+        f"Move '{main_branch}' to worktree structure? [y/N] ",
+        end="",
+        file=sys.stderr,
+    )
+
+    try:
+        response = input().strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print("\nCancelled", file=sys.stderr)
+        return 1
+
+    if response != "y":
+        print(
+            "Worktree operations require valid structure.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Perform restructure
+    try:
+        new_root = manager.restructure_to_worktree()
+        print(
+            f"Restructured: {new_root}",
+            file=sys.stderr,
+        )
+        # Output new path for cd
+        print(new_root)
+        return 0
+    except Exception as e:
+        print(f"Restructure failed: {e}", file=sys.stderr)
+        return 2
 
 
 def handle_quick_branch(

@@ -11,6 +11,7 @@ CLI-утилита с TUI-интерфейсом для управления git
 - Быстрое создание worktree через CLI-аргумент
 - Удаление worktrees (без удаления веток)
 - **Симлинки для навигации** — `cd wt` из любого worktree → последний активный
+- **Автоматическая реструктуризация** — преобразование репо в worktree-структуру
 
 ### Extended
 - **Fuzzy search** — фильтрация веток:
@@ -33,28 +34,62 @@ CLI-утилита с TUI-интерфейсом для управления git
 ## Directory Structure
 
 ```
-<repo_root>/
-├── .git/
-├── wt -> wtrees/feature-x     # симлинк на последний активный worktree
-├── wtrees/                    # директория со всеми worktrees
-│   ├── feature-x/
-│   │   └── wt -> ../../wt     # симлинк на корневой wt
-│   ├── feature-y/
-│   │   └── wt -> ../../wt
-│   └── ...
-└── ...                        # основная ветка (main/master)
+<container>/                     # контейнер (не git repo)
+├── master/                      # основная ветка (main/master)
+│   ├── .git/                    # полноценная git директория
+│   ├── wt -> ../feature-x       # симлинк на последний активный worktree
+│   └── src/
+├── feature-x/                   # worktree (рядом с основной веткой)
+│   ├── .git                     # файл-ссылка на основной repo
+│   ├── wt -> ../master          # симлинк на master директорию
+│   └── src/
+└── feature-y/                   # worktree
+    ├── .git
+    ├── wt -> ../master          # симлинк на master директорию
+    └── src/
 ```
 
 ### Симлинки для навигации
 
-При создании/переключении worktree автоматически:
-1. Обновляется `<repo_root>/wt` → последний активный worktree
-2. Создаётся `<worktree>/wt` → `../../wt` (ссылка на корневой симлинк)
+- `master/wt` — указывает на последний выбранный worktree
+- `<worktree>/wt` — указывает на `../master` (директорию master)
 
-**Быстрая навигация из любого worktree:**
+**Быстрая навигация:**
 ```bash
-cd wt    # → переход в последний активный worktree
+cd wt    # из master → последний активный worktree
+cd wt    # из worktree → master директория
+cd wt/wt # из worktree → последний активный worktree (через master)
 ```
+
+### Определение основной ветки
+
+Основная ветка определяется в следующем порядке:
+1. `git symbolic-ref refs/remotes/origin/HEAD` — из настроек remote
+2. Наличие ветки `main` или `master`
+3. Текущая ветка (fallback)
+
+### Автоматическая реструктуризация
+
+При запуске `wtr` проверяется структура репозитория. Если:
+- Текущая папка не соответствует названию главной ветки
+- И это не worktree (`.git` — директория, не файл)
+
+То предлагается реструктуризация:
+
+```
+Repository is not in worktree structure.
+Move 'master' to worktree structure? [y/N]
+```
+
+**При подтверждении:**
+```
+/myproject/          →    /myproject/
+  .git/                     master/
+  src/                        .git/
+                              src/
+```
+
+**При отказе:** worktree-операции блокируются.
 
 ## Project Structure
 
@@ -127,10 +162,10 @@ eval "$(wtr --completion bash)"  # bash
 │                                                          │
 │  Branches:                                               │
 │  ┌────────────────────────────────────────────────────┐  │
-│  │ ● main                              ↑1        2h   │  │
-│  │   feature-auth    [wt] * [+2]       ↓3        1d   │  │
-│  │   feature-api                  [S]            5d   │  │
-│  │   feature-db      [wt]                        3d   │  │
+│  │ 📁 ● main                           ↑1        2h   │  │
+│  │ 📁   feature-auth    * [+2]         ↓3        1d   │  │
+│  │      feature-api                [S]           5d   │  │
+│  │ 📁   feature-db                               3d   │  │
 │  └────────────────────────────────────────────────────┘  │
 │                                                          │
 │  Preview:                                                │
@@ -145,8 +180,8 @@ eval "$(wtr --completion bash)"  # bash
 ```
 
 ### Статус индикаторы
+- `📁` — есть worktree (пусто если нет)
 - `●` — текущая ветка
-- `[wt]` — есть worktree
 - `*` — dirty (есть изменения)
 - `[+N]` — untracked файлов
 - `↑N ↓M` — ahead/behind remote
@@ -155,13 +190,29 @@ eval "$(wtr --completion bash)"  # bash
 - `[R]` — rebase in progress
 - `[M]` — merge in progress
 
+### Enter Behavior
+
+Поведение Enter зависит от фокуса:
+
+**Фокус на поле фильтра:**
+- Создаёт новую ветку + worktree
+- Имя ветки = текст из поля фильтра
+- Базовая ветка по умолчанию = ветка при запуске wtr
+
+**Фокус на списке веток:**
+- Worktree существует → "Переключиться?" (Yes/No)
+  - Yes → обновить симлинк `wt` и перейти
+  - No → закрыть диалог
+- Worktree не существует → создать worktree для выбранной ветки
+
+**Первый элемент списка всегда выделен.**
+
 ### Dialogs
 
-**Existing worktree:**
+**Switch confirmation (existing worktree):**
 ```
-Worktree: feature-auth
-/repo/wtrees/feature-auth
-[Go] [Delete] [Cancel]
+Switch to feature-auth?
+[Yes] [No]
 ```
 
 **Create worktree:**
@@ -177,6 +228,19 @@ Base branch: [mas___________]
 ```
 - Поле ввода с fuzzy-фильтрацией веток
 - Выбор базовой ветки из списка или вводом
+
+**Uncommitted warning (before create):**
+```
+⚠ Uncommitted changes in base branch
+Branch: feature-x
+Modified files:
+• src/main.py
+• src/utils.py
+• tests/test_main.py
+[Continue anyway] [Cancel]
+```
+- Показывается если в worktree базовой ветки есть незакоммиченные файлы
+- Максимум 10 файлов, остальные скрыты ("... and N more")
 
 **After creation:**
 ```
@@ -218,18 +282,25 @@ class BranchStatus:
     merge_in_progress: bool        # merge in progress
 
 class GitWorktreeManager:
-    WORKTREES_DIR = "wtrees"
+    # Properties
+    root: Path                     # path to current repo/worktree
+    container: Path                # parent directory (worktrees live here)
 
     def __init__(path: Path | None = None)
-    def get_main_branch() -> str
+    def get_main_branch() -> str               # from origin/HEAD or fallback main/master
+    def get_main_repo_path() -> Path           # container/<main_branch>
+    def is_valid_structure() -> bool           # check if folder matches branch
+    def needs_restructure() -> bool            # check if restructure needed
+    def restructure_to_worktree() -> Path      # perform restructure, return new root
     def list_local_branches() -> list[str]
-    def list_worktrees() -> dict[str, Path]
+    def list_worktrees() -> dict[str, Path]    # worktrees in container
     def branch_exists(name: str) -> bool
     def worktree_exists(branch: str) -> bool
-    def get_worktree_path(branch: str) -> Path
+    def get_worktree_path(branch: str) -> Path # returns container/branch
     def create_worktree(branch: str, base_branch: str | None = None) -> Path
     def delete_worktree(branch: str) -> None
     def get_current_branch() -> str | None
+    def update_symlink(branch: str) -> None    # update master/wt -> ../branch
 
     # Extended methods
     def get_branch_status(branch: str) -> BranchStatus
@@ -237,17 +308,18 @@ class GitWorktreeManager:
     def find_stale_worktrees() -> list[tuple[str, str]]  # [(branch, reason), ...]
     def is_branch_merged(branch: str, into: str = "main") -> bool
     def prune_worktrees(branches: list[str]) -> None
-    def update_symlink(branch: str) -> None  # update wt symlink to point to branch
+    def get_uncommitted_files(branch: str) -> list[str]  # modified/staged/untracked files
 ```
 
 ### tui.py — TUI Components
 
 - `WorktreeApp` — main application
+  - `base_branch` — branch where app was launched (default for new worktrees)
 - `BranchItem` — list item with status indicators
 - `BranchPreview` — commit preview panel
 - `ConfirmDialog` — yes/no modal
 - `CreateWorktreeDialog` — create worktree modal with fuzzy branch selection
-- `WorktreeActionDialog` — go/delete modal
+- `UncommittedWarningDialog` — warning about uncommitted files in base branch
 - `PruneDialog` — select stale worktrees modal
 - `MultiDeleteDialog` — confirm multi-delete modal
 
@@ -282,7 +354,6 @@ def fuzzy_match(items: list[str], query: str, threshold: int = 95) -> list[str]
 
 ```toml
 [worktree]
-dir = "wtrees"              # worktree directory name
 default_base = ""           # empty = auto-detect (main or master)
 
 [ui]
