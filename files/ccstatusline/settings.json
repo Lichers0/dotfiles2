@@ -5,8 +5,8 @@
       {
         "id": "1",
         "type": "model",
-        "rawValue": true,
-        "color": "brightMagenta"
+        "color": "brightMagenta",
+        "rawValue": true
       },
       {
         "id": "97af3402-41e2-44d2-91b6-4f06f5ba37cf",
@@ -23,10 +23,15 @@
         "type": "separator"
       },
       {
+        "id": "217a26eb-b164-424d-a526-1e834a1a8413",
+        "type": "custom-text",
+        "customText": "📥 "
+      },
+      {
         "id": "3",
         "type": "context-length",
         "color": "brightBlue",
-        "rawValue": false
+        "rawValue": true
       },
       {
         "id": "f5cd625b-f411-403b-83ba-3ae14545e12a",
@@ -62,81 +67,75 @@
     ],
     [
       {
-        "id": "928c8a2d-cfef-47ed-8a30-453b157ae46a",
+        "id": "58344b3c-dc12-4438-877f-365861f2ea6d",
         "type": "custom-text",
-        "customText": "I:"
+        "customText": "🔡 "
       },
       {
-        "id": "3c29e7b5-eb4d-42e9-bad9-6d3e7595ee2e",
-        "type": "tokens-input",
-        "color": "yellow",
+        "id": "5b6e9085-e1fe-432b-b370-9ef22390bcc7",
+        "type": "tokens-total",
         "rawValue": true
       },
       {
-        "id": "72ddbf10-8330-4ed6-91a7-fa843c3353f5",
+        "id": "dc40541f-f840-4900-91fa-281f07657c46",
         "type": "custom-text",
-        "customText": " O:"
-      },
-      {
-        "id": "91ff4701-a0e4-4aa3-8c2d-1e83e8da4e13",
-        "type": "tokens-output",
-        "color": "yellow",
-        "rawValue": true
-      },
-      {
-        "id": "baa1911b-e7de-49ad-a256-4cb2613979a6",
-        "type": "separator"
+        "customText": "( "
       },
       {
         "id": "762e2f0e-f38d-484e-9394-432a9b831fcf",
         "type": "tokens-cached",
-        "rawValue": false
+        "rawValue": true
       },
       {
-        "id": "bf302a2d-46a6-4b65-86c4-dfcd2ec39dff",
+        "id": "1cd379d2-ffb3-4e55-8bc1-ce6c4267812c",
         "type": "custom-text",
-        "customText": " "
+        "customText": " )"
       },
       {
-        "id": "5b6e9085-e1fe-432b-b370-9ef22390bcc7",
-        "type": "tokens-total"
+        "id": "672b173e-797a-4f5c-95ce-8a9cf8ea2c50",
+        "type": "separator"
+      },
+      {
+        "id": "ab07dd02-805c-4eaf-902a-2936d5fa82ab",
+        "type": "current-working-dir",
+        "rawValue": true,
+        "metadata": {
+          "segments": "3"
+        }
       }
     ],
     [
       {
-        "id": "dc39a8d3-c55a-4fbc-a440-84b6c24421a2",
+        "id": "0652fd35-eb31-43ab-8e5b-5529e8459286",
         "type": "custom-text",
-        "customText": "St: ",
-        "color": "cyan"
+        "customText": "🕒 "
       },
       {
-        "id": "03175846-60c4-4ad7-8e8b-74194b11b1e5",
-        "type": "output-style",
-        "rawValue": true
-      },
-      {
-        "id": "672dec81-a697-432c-9690-a5640a957382",
-        "type": "custom-text",
-        "customText": " "
-      },
-      {
-        "id": "ae2547b8-0334-4915-aded-9d07957bd00a",
+        "id": "1ce42ce1-c75e-48a6-bcd7-60f6a1ace38c",
         "type": "session-cost",
         "rawValue": true
       },
       {
-        "id": "6f883d1a-b99f-4cc2-a2a9-a49906fbc30b",
+        "id": "61375acd-791d-4e1b-928d-f657d6b83c36",
         "type": "custom-text",
-        "customText": " "
+        "customText": "  "
       },
       {
-        "id": "a181fc76-aa3c-4742-a1ab-dac81df8b35e",
-        "type": "current-working-dir",
-        "metadata": {
-          "fishStyle": "true"
-        },
-        "rawValue": true,
-        "color": "brightBlack"
+        "id": "3048b315-d257-40d4-88a9-a3c38cc0496f",
+        "type": "custom-command",
+        "commandPath": "~/plugins/001-ccusage-day.10s.sh",
+        "timeout": 10000
+      },
+      {
+        "id": "c826ef7b-e55a-48b9-abc8-abd052dab7df",
+        "type": "custom-text",
+        "customText": "  "
+      },
+      {
+        "id": "93bd5333-0951-401b-acb5-b3d5d268336c",
+        "type": "custom-command",
+        "commandPath": " ~/plugins/002-ccusage-month.10s.sh",
+        "timeout": 10000
       }
     ]
   ],
