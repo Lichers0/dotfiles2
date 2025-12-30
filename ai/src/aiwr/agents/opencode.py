@@ -12,7 +12,6 @@ class OpenCodeAgent(BaseAgent):
     command = "opencode"
     prompt_flag = ""  # positional argument
     session_id_path = "$.sessionID"  # from any JSON event
-    default_model = "opencode/glm-4.7-free"
     resume_flag = "--session"
 
     def build_command(
@@ -25,14 +24,8 @@ class OpenCodeAgent(BaseAgent):
         cmd = [
             self.command,
             "run",
-            prompt,
             "--format", "json",
         ]
-
-        # Add default model if not overridden in extra_args
-        has_model = extra_args and "--model" in extra_args
-        if not has_model:
-            cmd.extend(["--model", self.default_model])
 
         # Add session flag if session_id provided
         if session_id:
@@ -40,6 +33,8 @@ class OpenCodeAgent(BaseAgent):
 
         if extra_args:
             cmd.extend(extra_args)
+
+        cmd.append(prompt)
         return cmd
 
     def extract_result(self, json_data: dict[str, Any]) -> str | None:

@@ -12,7 +12,6 @@ class CodexAgent(BaseAgent):
     command = "codex"
     prompt_flag = ""  # positional argument
     session_id_path = "$.thread_id"  # from type=thread.started JSON
-    default_model = "gpt-5.2"
     resume_flag = "resume"  # positional, not --resume
 
     def build_command(
@@ -25,15 +24,9 @@ class CodexAgent(BaseAgent):
         cmd = [
             self.command,
             "exec",
-            prompt,
             "--json",
             "--dangerously-bypass-approvals-and-sandbox",
         ]
-
-        # Add default model if not overridden in extra_args
-        has_model = extra_args and "--model" in extra_args
-        if not has_model:
-            cmd.extend(["--model", self.default_model])
 
         # Add resume if session_id provided (positional argument)
         if session_id:
@@ -41,6 +34,8 @@ class CodexAgent(BaseAgent):
 
         if extra_args:
             cmd.extend(extra_args)
+
+        cmd.append(prompt)
         return cmd
 
     def extract_result(self, json_data: dict[str, Any]) -> str | None:

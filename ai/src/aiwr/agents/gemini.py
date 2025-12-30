@@ -12,7 +12,6 @@ class GeminiAgent(BaseAgent):
     command = "gemini"
     prompt_flag = ""  # positional argument
     session_id_path = "$.session_id"  # from type=init JSON
-    default_model = "gemini-3-pro-preview"
     resume_flag = "--resume"
 
     def build_command(
@@ -28,19 +27,14 @@ class GeminiAgent(BaseAgent):
             "--output-format", "stream-json",
         ]
 
-        # Add default model if not overridden in extra_args
-        has_model = extra_args and "--model" in extra_args
-        if not has_model:
-            cmd.extend(["--model", self.default_model])
-
         # Add resume flag if session_id provided
         if session_id:
             cmd.extend([self.resume_flag, session_id])
 
-        cmd.append(prompt)
-
         if extra_args:
             cmd.extend(extra_args)
+
+        cmd.append(prompt)
         return cmd
 
     def extract_result(self, json_data: dict[str, Any]) -> str | None:

@@ -12,7 +12,6 @@ class BaseAgent(ABC):
     command: str
     prompt_flag: str
     session_id_path: str
-    default_model: str | None = None
     resume_flag: str | None = None
 
     def build_command(
@@ -28,14 +27,14 @@ class BaseAgent(ABC):
         return cmd
 
     def get_model(self, extra_args: list[str] | None = None) -> str | None:
-        """Get model from extra_args or return default."""
+        """Get model from extra_args."""
         if extra_args and "--model" in extra_args:
             try:
                 idx = extra_args.index("--model")
                 return extra_args[idx + 1]
             except (IndexError, ValueError):
                 pass
-        return self.default_model
+        return None
 
     def parse_log_entry(self, line: str) -> dict[str, Any] | None:
         """Parse a line and return JSON dict if it's a valid log entry.

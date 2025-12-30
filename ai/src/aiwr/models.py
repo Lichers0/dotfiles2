@@ -22,8 +22,8 @@ MODELS = {
         {"alias": "gpt52", "default": False, "model_id": "gpt-5.2", "extra_args": []},
     ],
     "gemini": [
-        {"alias": "pro", "default": True, "model_id": "gemini-3-pro", "extra_args": []},
-        {"alias": "flash", "default": False, "model_id": "gemini-3-flash", "extra_args": []},
+        {"alias": "pro", "default": True, "model_id": "gemini-3-pro-preview", "extra_args": []},
+        {"alias": "flash", "default": False, "model_id": "gemini-3-flash-preview", "extra_args": []},
     ],
     "opencode": [
         {"alias": "glm", "default": True, "model_id": "cerebras/zai-glm-4.6", "extra_args": []},

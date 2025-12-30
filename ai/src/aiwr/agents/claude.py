@@ -12,7 +12,6 @@ class ClaudeAgent(BaseAgent):
     command = "claude"
     prompt_flag = "--print"
     session_id_path = "$.session_id"
-    default_model = "opus"
     resume_flag = "--resume"
 
     def build_command(
@@ -32,15 +31,10 @@ class ClaudeAgent(BaseAgent):
         if session_id:
             cmd.extend([self.resume_flag, session_id])
 
-        cmd.extend(["--print", prompt])
-
-        # Add default model if not overridden in extra_args
-        has_model = extra_args and "--model" in extra_args
-        if not has_model:
-            cmd.extend(["--model", self.default_model])
-
         if extra_args:
             cmd.extend(extra_args)
+
+        cmd.extend(["--print", prompt])
         return cmd
 
     def extract_result(self, json_data: dict[str, Any]) -> str | None:

@@ -1,6 +1,7 @@
 """Runner - executes AI agents and streams output."""
 
 import json
+import shlex
 import shutil
 import signal
 import subprocess
@@ -23,12 +24,14 @@ class Runner:
         extra_args: list[str] | None = None,
         parent_id: str | None = None,
         session_id: str | None = None,
+        debug: bool = False,
     ):
         self.agent = agent
         self.prompt = prompt
         self.extra_args = extra_args or []
         self.parent_id = parent_id
         self.session_id = session_id  # Existing session to continue
+        self.debug = debug
 
         self.cmd = agent.build_command(prompt, self.extra_args, session_id)
         self.logger = Logger(is_resume=session_id is not None)
@@ -49,6 +52,10 @@ class Runner:
 
     def run(self) -> int:
         """Run the agent and return exit code."""
+        # Print debug command if requested
+        if self.debug:
+            print(f"[DEBUG] {shlex.join(self.cmd)}", flush=True)
+
         # Check if agent command exists
         if not shutil.which(self.agent.command):
             print(f"Error: {self.agent.command} not found in PATH", file=sys.stderr)

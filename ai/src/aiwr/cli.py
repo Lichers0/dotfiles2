@@ -80,6 +80,12 @@ def main() -> int:
         help="Model to use. Without value: show available models table",
     )
 
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Print the command before executing",
+    )
+
     # Parse known args to handle -- separator
     args, extra_args = parser.parse_known_args()
 
@@ -97,15 +103,15 @@ def main() -> int:
 
     # Handle --resume
     if args.resume:
-        return handle_resume(args.resume, args.prompt, extra_args)
+        return handle_resume(args.resume, args.prompt, extra_args, args.debug)
 
     # Handle --resume-tree
     if args.resume_tree:
-        return handle_resume_tree(args.resume_tree, args.prompt, extra_args)
+        return handle_resume_tree(args.resume_tree, args.prompt, extra_args, args.debug)
 
     # Handle regular prompt execution
     if args.prompt:
-        return handle_prompt(args.agent, args.prompt, args.parent, args.session, args.model, extra_args)
+        return handle_prompt(args.agent, args.prompt, args.parent, args.session, args.model, extra_args, args.debug)
 
     # No action specified
     parser.print_help()
@@ -153,7 +159,7 @@ def format_models_table() -> str:
     return "\n".join(lines).rstrip()
 
 
-def handle_resume(session_id: str, additional_prompt: str | None, extra_args: list[str]) -> int:
+def handle_resume(session_id: str, additional_prompt: str | None, extra_args: list[str], debug: bool) -> int:
     """Handle --resume command."""
     try:
         agent_name = get_session_agent(session_id)
@@ -162,10 +168,10 @@ def handle_resume(session_id: str, additional_prompt: str | None, extra_args: li
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
-    return _run_agent(agent_name, prompt, None, None, extra_args)
+    return _run_agent(agent_name, prompt, None, None, extra_args, debug)
 
 
-def handle_resume_tree(session_id: str, additional_prompt: str | None, extra_args: list[str]) -> int:
+def handle_resume_tree(session_id: str, additional_prompt: str | None, extra_args: list[str], debug: bool) -> int:
     """Handle --resume-tree command."""
     try:
         agent_name = get_session_agent(session_id)
@@ -174,7 +180,7 @@ def handle_resume_tree(session_id: str, additional_prompt: str | None, extra_arg
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
-    return _run_agent(agent_name, prompt, None, None, extra_args)
+    return _run_agent(agent_name, prompt, None, None, extra_args, debug)
 
 
 def handle_prompt(
@@ -184,6 +190,7 @@ def handle_prompt(
     session_id: str | None,
     model_alias: str | None,
     cli_extra_args: list[str],
+    debug: bool,
 ) -> int:
     """Handle regular prompt execution."""
     try:
@@ -203,7 +210,7 @@ def handle_prompt(
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
-    return _run_agent(agent_name, prompt, parent_id, session_id, final_args)
+    return _run_agent(agent_name, prompt, parent_id, session_id, final_args, debug)
 
 
 def _run_agent(
@@ -212,6 +219,7 @@ def _run_agent(
     parent_id: str | None,
     session_id: str | None,
     extra_args: list[str],
+    debug: bool,
 ) -> int:
     """Run an agent with the given parameters."""
     try:
@@ -226,6 +234,7 @@ def _run_agent(
         extra_args=extra_args,
         parent_id=parent_id,
         session_id=session_id,
+        debug=debug,
     )
 
     return runner.run()
