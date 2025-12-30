@@ -1,6 +1,0 @@
-textual>=0.40.0
-GitPython>=3.1.0
-thefuzz>=0.22.0
-
-[:python_version < "3.11"]
-tomli>=2.0.0
