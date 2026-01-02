@@ -28,14 +28,15 @@ class CodexAgent(BaseAgent):
             "--dangerously-bypass-approvals-and-sandbox",
         ]
 
-        # Add resume if session_id provided (positional argument)
-        if session_id:
-            cmd.extend([self.resume_flag, session_id])
-
         if extra_args:
             cmd.extend(extra_args)
 
         cmd.append(prompt)
+
+        # Resume must be at the very end for Codex
+        if session_id:
+            cmd.extend([self.resume_flag, session_id])
+
         return cmd
 
     def extract_result(self, json_data: dict[str, Any]) -> str | None:

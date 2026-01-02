@@ -40,6 +40,8 @@ class Runner:
         self._agent_session_id: str | None = None  # Session ID from agent output
         self._accumulated_result: str = ""
 
+        print("Start agent...", flush=True)
+
         # Output first JSON with prompt/agent/model and save to log
         model = agent.get_model(self.extra_args)
         first_json = {"type": "aiwr_start", "prompt": prompt, "agent": agent.name, "model": model}
