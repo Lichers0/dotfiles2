@@ -19,13 +19,9 @@
         "rawValue": true
       },
       {
-        "id": "2da7d3cf-51ee-49e8-9c53-b3a2aba9d31f",
-        "type": "separator"
-      },
-      {
-        "id": "217a26eb-b164-424d-a526-1e834a1a8413",
+        "id": "eddacd07-0cef-4efb-ab53-218722527b4a",
         "type": "custom-text",
-        "customText": "📥 "
+        "customText": " | 🥡 "
       },
       {
         "id": "3",
@@ -67,19 +63,9 @@
     ],
     [
       {
-        "id": "58344b3c-dc12-4438-877f-365861f2ea6d",
+        "id": "821bcc67-9dde-4fcc-abc3-0644af7700a5",
         "type": "custom-text",
-        "customText": "🔡 "
-      },
-      {
-        "id": "5b6e9085-e1fe-432b-b370-9ef22390bcc7",
-        "type": "tokens-total",
-        "rawValue": true
-      },
-      {
-        "id": "dc40541f-f840-4900-91fa-281f07657c46",
-        "type": "custom-text",
-        "customText": "( "
+        "customText": "🔘 "
       },
       {
         "id": "762e2f0e-f38d-484e-9394-432a9b831fcf",
@@ -87,16 +73,35 @@
         "rawValue": true
       },
       {
-        "id": "1cd379d2-ffb3-4e55-8bc1-ce6c4267812c",
+        "id": "bf302a2d-46a6-4b65-86c4-dfcd2ec39dff",
         "type": "custom-text",
-        "customText": " )"
+        "customText": " of "
       },
       {
-        "id": "672b173e-797a-4f5c-95ce-8a9cf8ea2c50",
+        "id": "5b6e9085-e1fe-432b-b370-9ef22390bcc7",
+        "type": "tokens-total",
+        "rawValue": true
+      },
+      {
+        "id": "9647b2fb-5792-4269-8cb5-3c0585b6922d",
         "type": "separator"
       },
       {
-        "id": "ab07dd02-805c-4eaf-902a-2936d5fa82ab",
+        "id": "36f66a79-0fc0-4c18-8f04-ba9cc57e38f3",
+        "type": "custom-text",
+        "customText": "↔️ "
+      },
+      {
+        "id": "11e0620f-1129-4df5-a869-ffee7dc22e72",
+        "type": "terminal-width",
+        "rawValue": true
+      },
+      {
+        "id": "8d7b8997-cd8a-413d-af99-f3c85765361f",
+        "type": "separator"
+      },
+      {
+        "id": "8f429d46-739b-4aba-b3cf-c5348b27721e",
         "type": "current-working-dir",
         "rawValue": true,
         "metadata": {
@@ -106,35 +111,35 @@
     ],
     [
       {
-        "id": "0652fd35-eb31-43ab-8e5b-5529e8459286",
+        "id": "672dec81-a697-432c-9690-a5640a957382",
         "type": "custom-text",
-        "customText": "🕒 "
+        "customText": "⏳ "
       },
       {
-        "id": "1ce42ce1-c75e-48a6-bcd7-60f6a1ace38c",
+        "id": "ae2547b8-0334-4915-aded-9d07957bd00a",
         "type": "session-cost",
         "rawValue": true
       },
       {
-        "id": "61375acd-791d-4e1b-928d-f657d6b83c36",
+        "id": "6f883d1a-b99f-4cc2-a2a9-a49906fbc30b",
         "type": "custom-text",
-        "customText": "  "
+        "customText": " "
       },
       {
-        "id": "3048b315-d257-40d4-88a9-a3c38cc0496f",
+        "id": "3f49a432-f81f-4bcb-9787-2cfa9c40b27c",
         "type": "custom-command",
-        "commandPath": "~/plugins/001-ccusage-day.10s.sh",
+        "commandPath": "/Users/Denis/plugins/001-ccusage-day.10s.sh",
         "timeout": 10000
       },
       {
-        "id": "c826ef7b-e55a-48b9-abc8-abd052dab7df",
+        "id": "14a0e847-8903-4a42-ad61-a751f9af38da",
         "type": "custom-text",
-        "customText": "  "
+        "customText": " "
       },
       {
-        "id": "93bd5333-0951-401b-acb5-b3d5d268336c",
+        "id": "3ac9967a-f1c4-41af-b0bd-69b687e877c7",
         "type": "custom-command",
-        "commandPath": " ~/plugins/002-ccusage-month.10s.sh",
+        "commandPath": "/Users/Denis/plugins/002-ccusage-month.10s.sh",
         "timeout": 10000
       }
     ]
