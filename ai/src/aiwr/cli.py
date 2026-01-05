@@ -1,6 +1,7 @@
 """CLI entry point for AIWR."""
 
 import argparse
+import json
 import os
 import sys
 
@@ -86,6 +87,12 @@ def main() -> int:
         help="Print the command before executing",
     )
 
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output in JSON format (use with --model)",
+    )
+
     # Parse known args to handle -- separator
     args, extra_args = parser.parse_known_args()
 
@@ -97,9 +104,9 @@ def main() -> int:
     if args.list:
         return handle_list()
 
-    # Handle --model without value (show table)
+    # Handle --model without value (show table or JSON)
     if args.model is True:
-        return handle_models()
+        return handle_models(args.json)
 
     # Handle --resume
     if args.resume:
@@ -131,9 +138,12 @@ def handle_list() -> int:
     return 0
 
 
-def handle_models() -> int:
-    """Handle --model command without value (show models table)."""
-    output = format_models_table()
+def handle_models(as_json: bool = False) -> int:
+    """Handle --model command without value (show models table or JSON)."""
+    if as_json:
+        output = format_models_json()
+    else:
+        output = format_models_table()
     print(output)
     return 0
 
@@ -157,6 +167,11 @@ def format_models_table() -> str:
         lines.append("")
 
     return "\n".join(lines).rstrip()
+
+
+def format_models_json() -> str:
+    """Format models as JSON."""
+    return json.dumps(MODELS, indent=2)
 
 
 def handle_resume(session_id: str, additional_prompt: str | None, extra_args: list[str], debug: bool) -> int:
