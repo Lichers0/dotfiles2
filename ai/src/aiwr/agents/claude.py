@@ -24,6 +24,7 @@ class ClaudeAgent(BaseAgent):
         cmd = [
             self.command,
             "--verbose",
+            "--dangerously-skip-permissions",
             "--output-format", "stream-json",
         ]
 
