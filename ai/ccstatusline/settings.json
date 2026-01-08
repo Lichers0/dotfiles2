@@ -116,9 +116,12 @@
         "customText": "⏳ "
       },
       {
-        "id": "ae2547b8-0334-4915-aded-9d07957bd00a",
-        "type": "session-cost",
-        "rawValue": true
+        "id": "c7689c3e-4e86-4063-97bc-aef4da009ba0",
+        "type": "custom-command",
+        "commandPath": "~/.config/ccstatusline/plugins/003-input-session.10s.sh",
+        "timeout": 10000,
+        "preserveColors": false,
+        "color": ""
       },
       {
         "id": "6f883d1a-b99f-4cc2-a2a9-a49906fbc30b",
@@ -128,8 +131,9 @@
       {
         "id": "3f49a432-f81f-4bcb-9787-2cfa9c40b27c",
         "type": "custom-command",
-        "commandPath": "/Users/Denis/plugins/001-ccusage-day.10s.sh",
-        "timeout": 10000
+        "commandPath": "~/.config/ccstatusline/plugins/001-ccusage-day.10s.sh",
+        "timeout": 10000,
+        "color": "brightGreen"
       },
       {
         "id": "14a0e847-8903-4a42-ad61-a751f9af38da",
@@ -139,8 +143,14 @@
       {
         "id": "3ac9967a-f1c4-41af-b0bd-69b687e877c7",
         "type": "custom-command",
-        "commandPath": "/Users/Denis/plugins/002-ccusage-month.10s.sh",
-        "timeout": 10000
+        "commandPath": "~/.config/ccstatusline/plugins/002-ccusage-month.10s.sh",
+        "timeout": 10000,
+        "color": "green"
+      },
+      {
+        "id": "60deef96-c270-4769-a98f-ae2294149748",
+        "type": "custom-text",
+        "customText": " "
       }
     ]
   ],

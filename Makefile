@@ -6,7 +6,11 @@ claude:
 	ln -s $(PWD)/files/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json | true
 
 ccstatusline:
-	ln -snf $(PWD)/files/ccstatusline ~/.config/ccstatusline | true
+	@echo "Setting up ccstatusline..."
+	@mkdir -p ~/.config
+	@rm -rf ~/.config/ccstatusline
+	@ln -snf $(PWD)/ai/ccstatusline ~/.config/ccstatusline
+	@echo "Done! Symlink: ~/.config/ccstatusline"
 
 tmux:
 	ln -s $(PWD)/files/tmux.conf ~/.tmux.conf | true
