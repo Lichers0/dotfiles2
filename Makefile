@@ -58,6 +58,7 @@ mcp:
 		echo "TAVILY_API_KEY=" >> ~/.claude/.env; \
 		echo "BRIGHTDATA_API_TOKEN=" >> ~/.claude/.env; \
 		echo "GITHUB_API_KEY=" >> ~/.claude/.env; \
+		echo "EXA_API_KEY=" >> ~/.claude/.env; \
 		echo "Created ~/.claude/.env - fill in your API keys"; \
 	fi
 	@# Add to .zshrc if not present

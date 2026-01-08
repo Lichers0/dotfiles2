@@ -1,0 +1,9 @@
+{
+  "exa": {
+    "command": "bunx",
+    "args": ["--bun", "exa-mcp-server"],
+    "env": {
+      "EXA_API_KEY": "${EXA_API_KEY}"
+    }
+  }
+}
