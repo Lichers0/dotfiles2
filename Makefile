@@ -3,7 +3,8 @@ TPM_PATH := ~/.tmux/plugins/tpm
 .PHONY: lazyvim
 
 claude:
-	ln -s $(PWD)/files/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json | true
+	@echo "Claude Desktop config contains secrets - configure manually:"
+	@echo "  ~/Library/Application Support/Claude/claude_desktop_config.json"
 
 ccstatusline:
 	@echo "Setting up ccstatusline..."
