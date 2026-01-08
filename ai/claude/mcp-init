@@ -60,14 +60,14 @@ if [[ -z "$selected" ]]; then
     exit 0
 fi
 
-# Merge selected configs
-echo '{}' > "$OUTPUT_FILE.tmp"
+# Merge selected configs into mcpServers wrapper
+echo '{"mcpServers":{}}' > "$OUTPUT_FILE.tmp"
 
 for server in $selected; do
     config_file="$MCP_DIR/$server.json"
     if [[ -f "$config_file" ]]; then
-        # Merge configs
-        jq -s '.[0] * .[1]' "$OUTPUT_FILE.tmp" "$config_file" > "$OUTPUT_FILE.tmp2"
+        # Merge server config into mcpServers object
+        jq -s '.[0].mcpServers *= .[1] | .[0]' "$OUTPUT_FILE.tmp" "$config_file" > "$OUTPUT_FILE.tmp2"
         mv "$OUTPUT_FILE.tmp2" "$OUTPUT_FILE.tmp"
         echo -e "${GREEN}+ $server${NC}"
     fi
