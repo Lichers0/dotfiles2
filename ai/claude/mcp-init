@@ -1,0 +1,83 @@
+#!/bin/bash
+# MCP Server Selector for Claude Code projects
+# Creates .mcp.json in current directory with selected servers
+
+set -e
+
+MCP_DIR="$HOME/.claude/mcp-servers"
+ENV_FILE="$HOME/.claude/.env"
+OUTPUT_FILE=".mcp.json"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Check dependencies
+if ! command -v fzf &> /dev/null; then
+    echo -e "${RED}Error: fzf is required. Install with: brew install fzf${NC}"
+    exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+    echo -e "${RED}Error: jq is required. Install with: brew install jq${NC}"
+    exit 1
+fi
+
+# Check if mcp-servers directory exists
+if [[ ! -d "$MCP_DIR" ]]; then
+    echo -e "${RED}Error: $MCP_DIR not found${NC}"
+    exit 1
+fi
+
+# Load environment variables
+if [[ -f "$ENV_FILE" ]]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+fi
+
+# Get list of available servers
+servers=$(ls "$MCP_DIR"/*.json 2>/dev/null | xargs -n1 basename | sed 's/.json$//')
+
+if [[ -z "$servers" ]]; then
+    echo -e "${RED}No MCP servers found in $MCP_DIR${NC}"
+    exit 1
+fi
+
+echo -e "${YELLOW}Select MCP servers (TAB to select, ENTER to confirm):${NC}"
+echo ""
+
+# Use fzf for multi-select
+selected=$(echo "$servers" | fzf --multi --height=50% --border \
+    --header="[TAB] select  [ENTER] confirm  [ESC] cancel" \
+    --preview="cat $MCP_DIR/{}.json | jq ." \
+    --preview-window=right:50%)
+
+if [[ -z "$selected" ]]; then
+    echo -e "${YELLOW}No servers selected. Cancelled.${NC}"
+    exit 0
+fi
+
+# Merge selected configs
+echo '{}' > "$OUTPUT_FILE.tmp"
+
+for server in $selected; do
+    config_file="$MCP_DIR/$server.json"
+    if [[ -f "$config_file" ]]; then
+        # Merge configs
+        jq -s '.[0] * .[1]' "$OUTPUT_FILE.tmp" "$config_file" > "$OUTPUT_FILE.tmp2"
+        mv "$OUTPUT_FILE.tmp2" "$OUTPUT_FILE.tmp"
+        echo -e "${GREEN}+ $server${NC}"
+    fi
+done
+
+# Expand environment variables in the final config
+envsubst < "$OUTPUT_FILE.tmp" > "$OUTPUT_FILE"
+rm "$OUTPUT_FILE.tmp"
+
+echo ""
+echo -e "${GREEN}Created $OUTPUT_FILE with $(echo "$selected" | wc -l | tr -d ' ') server(s)${NC}"
+echo ""
+echo -e "${YELLOW}Don't forget to add .mcp.json to .gitignore!${NC}"

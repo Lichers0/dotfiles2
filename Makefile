@@ -39,3 +39,30 @@ nvim-configure:
 # git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 # ~/Library/Application Support/Claude/claude_desktop_config.json
 # ~/.config/karabiner/
+
+# MCP Servers for Claude Code
+mcp:
+	@echo "Setting up MCP servers..."
+	@mkdir -p ~/.claude
+	@ln -snf $(PWD)/ai/claude/mcp-servers ~/.claude/mcp-servers
+	@ln -snf $(PWD)/ai/claude/mcp-init ~/.claude/mcp-init
+	@# Create .env template if not exists
+	@if [ ! -f ~/.claude/.env ]; then \
+		echo "# MCP Servers API Keys" > ~/.claude/.env; \
+		echo "BRAVE_API_KEY=" >> ~/.claude/.env; \
+		echo "TAVILY_API_KEY=" >> ~/.claude/.env; \
+		echo "BRIGHTDATA_API_TOKEN=" >> ~/.claude/.env; \
+		echo "GITHUB_API_KEY=" >> ~/.claude/.env; \
+		echo "Created ~/.claude/.env - fill in your API keys"; \
+	fi
+	@# Add to .zshrc if not present
+	@if ! grep -q "MCP Servers" ~/.zshrc 2>/dev/null; then \
+		echo "" >> ~/.zshrc; \
+		echo "# MCP Servers - load API keys" >> ~/.zshrc; \
+		echo '[[ -f ~/.claude/.env ]] && { set -a; source ~/.claude/.env; set +a; }' >> ~/.zshrc; \
+		echo "" >> ~/.zshrc; \
+		echo "# MCP init alias" >> ~/.zshrc; \
+		echo 'alias mcp-init="~/.claude/mcp-init"' >> ~/.zshrc; \
+		echo "Added MCP config to ~/.zshrc"; \
+	fi
+	@echo "Done! Run: source ~/.zshrc"

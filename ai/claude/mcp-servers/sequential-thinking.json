@@ -1,0 +1,6 @@
+{
+  "sequential-thinking": {
+    "command": "bunx",
+    "args": ["--bun", "@modelcontextprotocol/server-sequential-thinking"]
+  }
+}

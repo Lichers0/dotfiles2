@@ -1,0 +1,6 @@
+{
+  "chrome-devtools": {
+    "command": "bunx",
+    "args": ["--bun", "chrome-devtools-mcp"]
+  }
+}

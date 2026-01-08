@@ -1,0 +1,6 @@
+{
+  "playwright": {
+    "command": "bunx",
+    "args": ["--bun", "@executeautomation/playwright-mcp-server"]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "context7": {
+    "command": "bunx",
+    "args": ["--bun", "@upstash/context7-mcp"]
+  }
+}

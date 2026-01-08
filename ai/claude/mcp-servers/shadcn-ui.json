@@ -1,0 +1,6 @@
+{
+  "shadcn-ui": {
+    "command": "bunx",
+    "args": ["--bun", "@jpisnice/shadcn-ui-mcp-server", "--github-api-key", "${GITHUB_API_KEY}"]
+  }
+}
