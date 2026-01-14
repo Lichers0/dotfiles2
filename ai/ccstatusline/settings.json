@@ -24,17 +24,6 @@
         "customText": " | 🥡 "
       },
       {
-        "id": "3",
-        "type": "context-length",
-        "color": "brightBlue",
-        "rawValue": true
-      },
-      {
-        "id": "f5cd625b-f411-403b-83ba-3ae14545e12a",
-        "type": "custom-text",
-        "customText": " "
-      },
-      {
         "id": "3da4c5c7-1272-46e8-b5b4-151c8bfc82e0",
         "type": "context-percentage-usable",
         "rawValue": true
@@ -118,10 +107,10 @@
       {
         "id": "c7689c3e-4e86-4063-97bc-aef4da009ba0",
         "type": "custom-command",
+        "color": "",
         "commandPath": "~/.config/ccstatusline/plugins/003-input-session.10s.sh",
-        "timeout": 10000,
         "preserveColors": false,
-        "color": ""
+        "timeout": 10000
       },
       {
         "id": "6f883d1a-b99f-4cc2-a2a9-a49906fbc30b",
@@ -131,9 +120,9 @@
       {
         "id": "3f49a432-f81f-4bcb-9787-2cfa9c40b27c",
         "type": "custom-command",
+        "color": "brightGreen",
         "commandPath": "~/.config/ccstatusline/plugins/001-ccusage-day.10s.sh",
-        "timeout": 10000,
-        "color": "brightGreen"
+        "timeout": 10000
       },
       {
         "id": "14a0e847-8903-4a42-ad61-a751f9af38da",
@@ -143,14 +132,21 @@
       {
         "id": "3ac9967a-f1c4-41af-b0bd-69b687e877c7",
         "type": "custom-command",
+        "color": "green",
         "commandPath": "~/.config/ccstatusline/plugins/002-ccusage-month.10s.sh",
-        "timeout": 10000,
-        "color": "green"
+        "timeout": 10000
       },
       {
         "id": "60deef96-c270-4769-a98f-ae2294149748",
         "type": "custom-text",
-        "customText": " "
+        "customText": " | "
+      },
+      {
+        "id": "07cac3d5-b19b-40b3-9e95-47990be5d2d6",
+        "type": "custom-command",
+        "commandPath": " ~/dotfiles/ai/ccstatusline/plugins/004-session=limits.10s.sh",
+        "preserveColors": true,
+        "timeout": 10000
       }
     ]
   ],
