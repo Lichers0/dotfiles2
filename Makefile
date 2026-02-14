@@ -13,16 +13,24 @@ ccstatusline:
 	@ln -snf $(PWD)/ai/ccstatusline ~/.config/ccstatusline
 	@echo "Done! Symlink: ~/.config/ccstatusline"
 
+ghostty:
+	@echo "Setting up Ghostty..."
+	@mkdir -p ~/.config
+	@rm -rf ~/.config/ghostty
+	@ln -snf $(PWD)/ghostty ~/.config/ghostty
+	@echo "Done! Symlink: ~/.config/ghostty"
+
 tmux:
 	ln -s $(PWD)/files/tmux.conf ~/.tmux.conf | true
 
-	@echo "🔍 Checking TPM..."
+	@echo "Checking TPM..."
 	@if [ ! -d $(TPM_PATH) ]; then \
-		echo "📦 TPM not found. Installing..."; \
+		echo "TPM not found. Installing..."; \
 		git clone https://github.com/tmux-plugins/tpm $(TPM_PATH); \
 	else \
-		echo "✅ TPM already installed."; \
+		echo "TPM already installed."; \
 	fi
+	@ln -snf $(PWD)/tmux/plugins/tmux-ghostty-theme ~/.tmux/plugins/tmux-ghostty-theme
 lazyvim:
 	ln -snf $(PWD)/lazyvim ~/.config/nvim
 astro:
