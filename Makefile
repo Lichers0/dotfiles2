@@ -1,6 +1,6 @@
 TPM_PATH := ~/.tmux/plugins/tpm
 
-.PHONY: lazyvim
+.PHONY: claude ccstatusline ghostty tmux lazyvim astro test nvim-configure mcp
 
 claude:
 	@echo "Claude Desktop config contains secrets - configure manually:"
