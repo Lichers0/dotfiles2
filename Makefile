@@ -1,17 +1,16 @@
 TPM_PATH := ~/.tmux/plugins/tpm
 
-.PHONY: claude ccstatusline ghostty tmux lazyvim astro test nvim-configure mcp
+.PHONY: claude claude-statusline ghostty tmux lazyvim astro test nvim-configure mcp
 
 claude:
 	@echo "Claude Desktop config contains secrets - configure manually:"
 	@echo "  ~/Library/Application Support/Claude/claude_desktop_config.json"
 
-ccstatusline:
-	@echo "Setting up ccstatusline..."
-	@mkdir -p ~/.config
-	@rm -rf ~/.config/ccstatusline
-	@ln -snf $(PWD)/ai/ccstatusline ~/.config/ccstatusline
-	@echo "Done! Symlink: ~/.config/ccstatusline"
+claude-statusline:
+	@echo "Setting up Claude Code statusline..."
+	@mkdir -p ~/.claude
+	@ln -snf $(PWD)/scripts/claude/statusline-command.sh ~/.claude/statusline-command.sh
+	@echo "Done! Symlink: ~/.claude/statusline-command.sh"
 
 ghostty:
 	@echo "Setting up Ghostty..."
