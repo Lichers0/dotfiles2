@@ -112,14 +112,19 @@ fn_monthly_cost() {
 }
 
 fn_limits() {
-  local CREDS=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-  [ -z "$CREDS" ] && return
-  local TOKEN=$(echo "$CREDS" | jq -r '.claudeAiOauth.accessToken')
-  [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ] && return
+  # Read from shared cache populated by tmux claude-usage.sh
+  local CACHE_FILE="$HOME/.cache/claude-api-response.json"
+  [ -f "$CACHE_FILE" ] || return
 
-  local USAGE=$(curl -s --max-time 5 -X GET "https://api.anthropic.com/api/oauth/usage" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "anthropic-beta: oauth-2025-04-20")
+  local USAGE=$(cat "$CACHE_FILE")
+
+  # Check for API errors
+  local api_error=$(echo "$USAGE" | jq -r '.error.type // empty' 2>/dev/null)
+  if [ -n "$api_error" ]; then
+    local RC='\033[38;5;204m' RS='\033[0m'
+    echo -e "🚫 429"
+    return
+  fi
 
   local h5=$(echo "$USAGE" | jq -r '.five_hour.utilization // 0' | xargs printf "%.0f")
   local d7=$(echo "$USAGE" | jq -r '.seven_day.utilization // 0' | xargs printf "%.0f")
@@ -139,12 +144,12 @@ mkdir -p "$CACHE_DIR"
 
 bg_update "$CACHE_DIR/daily-$(date +%Y%m%d)" 60 fn_daily_cost
 bg_update "$CACHE_DIR/monthly-$(date +%Y%m)" 60 fn_monthly_cost
-bg_update "$CACHE_DIR/limits" 10 fn_limits
 
 # Read cached values
 daily=$(read_cache "$CACHE_DIR/daily-$(date +%Y%m%d)" "-")
 monthly=$(read_cache "$CACHE_DIR/monthly-$(date +%Y%m)" "-")
-limits=$(read_cache "$CACHE_DIR/limits" "🔥 -")
+limits=$(fn_limits)
+[ -z "$limits" ] && limits="🔥 -"
 
 # === Format display values ===
 short_dir=$(shorten_cwd "$cwd")

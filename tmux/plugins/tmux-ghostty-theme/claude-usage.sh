@@ -129,7 +129,13 @@ fetch_api_data() {
     -H "anthropic-beta: oauth-2025-04-20" 2>/dev/null)
 
   if [[ -n "$response" ]]; then
-    echo "$response" | tee "$API_CACHE_FILE"
+    # Don't overwrite cache with error responses
+    local has_error=$(echo "$response" | jq -r '.error // empty' 2>/dev/null)
+    if [[ -z "$has_error" ]]; then
+      echo "$response" | tee "$API_CACHE_FILE"
+    else
+      echo "$response"
+    fi
   else
     [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"
   fi
@@ -178,6 +184,13 @@ format_7d() {
 # Основная логика
 RESPONSE=$(fetch_api_data)
 [[ -z "$RESPONSE" ]] && exit 0
+
+# Check for API errors
+api_error=$(echo "$RESPONSE" | jq -r '.error.type // empty' 2>/dev/null)
+if [[ -n "$api_error" ]]; then
+  echo "${C_RED}🚫 429${C_RESET}"
+  exit 0
+fi
 
 # Проверка max подписки
 session=$(echo "$RESPONSE" | jq -r '.five_hour.utilization // empty' 2>/dev/null)
