@@ -214,7 +214,8 @@ case "$MODE" in
     format_5h "$RESPONSE"
     ;;
   7d)
-    format_7d "$RESPONSE"
+    output_7d=$(format_7d "$RESPONSE")
+    [[ -n "$output_7d" ]] && echo "${output_7d} ${cache_info}" || echo ""
     ;;
   all|*)
     output_5h=$(format_5h "$RESPONSE")
