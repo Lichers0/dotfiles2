@@ -10,6 +10,8 @@ MODE="${1:-all}"
 CACHE_DIR="$HOME/.cache"
 API_CACHE_FILE="$CACHE_DIR/claude-api-response.json"
 LOCK_FILE="$CACHE_DIR/claude-usage.lock"
+TTL_FILE="$CACHE_DIR/claude-usage-ttl"
+BASE_TTL=180
 
 # Tokyo Night Storm palette (tmux format)
 C_RED="#[fg=#f7767e]"
@@ -96,47 +98,65 @@ parse_iso_to_seconds_left() {
   fi
 }
 
+get_current_ttl() {
+  if [[ -f "$TTL_FILE" ]]; then
+    cat "$TTL_FILE"
+  else
+    echo "$BASE_TTL"
+  fi
+}
+
 # Получаем данные API (с кэшированием)
 fetch_api_data() {
-  # Используем кэш если < 60 секунд
-  if [[ -f "$API_CACHE_FILE" ]]; then
-    local age=$(get_file_age "$API_CACHE_FILE")
-    if [[ $age -lt 180 ]]; then
-      cat "$API_CACHE_FILE"
-      return 0
-    fi
-  fi
+  local ttl=$(get_current_ttl)
 
-  # Rate limit: раз в 30 секунд
-  if [[ -f "$LOCK_FILE" ]]; then
-    local lock_age=$(get_file_age "$LOCK_FILE")
-    if [[ $lock_age -lt 30 ]]; then
+  # TTL_FILE mtime tracks last API attempt (success or failure)
+  if [[ -f "$TTL_FILE" ]]; then
+    local attempt_age=$(get_file_age "$TTL_FILE")
+    if [[ $attempt_age -lt $ttl ]]; then
       [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"
       return 0
     fi
   fi
-  touch "$LOCK_FILE"
+
+  # Lock: prevent concurrent API calls (shlock is non-blocking)
+  if ! shlock -p $$ -f "$LOCK_FILE" 2>/dev/null; then
+    [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"
+    return 0
+  fi
+  trap 'rm -f "$LOCK_FILE"' EXIT
 
   # Получаем credentials
   local keychain_data=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-  [[ -z "$keychain_data" ]] && { [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"; return 0; }
+  [[ -z "$keychain_data" ]] && { rm -f "$LOCK_FILE"; [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"; return 0; }
 
   local token=$(echo "$keychain_data" | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null)
-  [[ -z "$token" ]] && { [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"; return 0; }
+  [[ -z "$token" ]] && { rm -f "$LOCK_FILE"; [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"; return 0; }
 
   local response=$(curl -s --max-time 5 "https://api.anthropic.com/api/oauth/usage" \
     -H "Authorization: Bearer $token" \
     -H "anthropic-beta: oauth-2025-04-20" 2>/dev/null)
 
+  rm -f "$LOCK_FILE"
+
   if [[ -n "$response" ]]; then
-    # Don't overwrite cache with error responses
     local has_error=$(echo "$response" | jq -r '.error // empty' 2>/dev/null)
     if [[ -z "$has_error" ]]; then
+      # Success: reset TTL to base, touch TTL_FILE to mark attempt time
+      echo "$BASE_TTL" > "$TTL_FILE"
       echo "$response" | tee "$API_CACHE_FILE"
     else
-      echo "$response"
+      # Rate limited: increase TTL, touch TTL_FILE to mark attempt time
+      echo $(( ttl + BASE_TTL )) > "$TTL_FILE"
+      if [[ -f "$API_CACHE_FILE" ]]; then
+        cat "$API_CACHE_FILE"
+      else
+        echo "$response"
+      fi
     fi
   else
+    # Timeout/empty response: increase TTL like rate limit
+    echo $(( ttl + BASE_TTL )) > "$TTL_FILE"
     [[ -f "$API_CACHE_FILE" ]] && cat "$API_CACHE_FILE"
   fi
 }
@@ -200,14 +220,15 @@ if [[ -z "$session" && -z "$weekly" ]]; then
   exit 0
 fi
 
-# Cache freshness: last update HH:MM and minutes until next refresh
-TTL=180
+# Cache freshness: last successful update HH:MM, countdown to next attempt
+TTL=$(get_current_ttl)
 cache_mod=$(stat -f '%m' "$API_CACHE_FILE" 2>/dev/null || echo 0)
-cache_age=$(( $(date +%s) - cache_mod ))
 updated_at=$(date -r "$cache_mod" +%H:%M 2>/dev/null || echo "?")
-next_min=$(( (TTL - cache_age) / 60 ))
+ttl_mod=$(stat -f '%m' "$TTL_FILE" 2>/dev/null || echo 0)
+attempt_age=$(( $(date +%s) - ttl_mod ))
+next_min=$(( (TTL - (attempt_age % TTL) - 1) / 60 ))
 [[ $next_min -lt 0 ]] && next_min=0
-cache_info="${C_GRAY}@${updated_at} ~${next_min}m${C_RESET}"
+cache_info="${C_GRAY}${updated_at}(${next_min})${C_RESET}"
 
 case "$MODE" in
   5h)
