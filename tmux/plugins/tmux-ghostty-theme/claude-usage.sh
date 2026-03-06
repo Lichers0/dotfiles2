@@ -101,7 +101,7 @@ fetch_api_data() {
   # Используем кэш если < 60 секунд
   if [[ -f "$API_CACHE_FILE" ]]; then
     local age=$(get_file_age "$API_CACHE_FILE")
-    if [[ $age -lt 60 ]]; then
+    if [[ $age -lt 180 ]]; then
       cat "$API_CACHE_FILE"
       return 0
     fi
@@ -200,6 +200,15 @@ if [[ -z "$session" && -z "$weekly" ]]; then
   exit 0
 fi
 
+# Cache freshness: last update HH:MM and minutes until next refresh
+TTL=180
+cache_mod=$(stat -f '%m' "$API_CACHE_FILE" 2>/dev/null || echo 0)
+cache_age=$(( $(date +%s) - cache_mod ))
+updated_at=$(date -r "$cache_mod" +%H:%M 2>/dev/null || echo "?")
+next_min=$(( (TTL - cache_age) / 60 ))
+[[ $next_min -lt 0 ]] && next_min=0
+cache_info="${C_GRAY}@${updated_at} ~${next_min}m${C_RESET}"
+
 case "$MODE" in
   5h)
     format_5h "$RESPONSE"
@@ -211,11 +220,11 @@ case "$MODE" in
     output_5h=$(format_5h "$RESPONSE")
     output_7d=$(format_7d "$RESPONSE")
     if [[ -n "$output_5h" && -n "$output_7d" ]]; then
-      echo "${output_5h} ${C_GRAY}│${C_RESET} ${output_7d}"
+      echo "${output_5h} ${C_GRAY}│${C_RESET} ${output_7d} ${cache_info}"
     elif [[ -n "$output_5h" ]]; then
-      echo "$output_5h"
+      echo "$output_5h ${cache_info}"
     elif [[ -n "$output_7d" ]]; then
-      echo "$output_7d"
+      echo "$output_7d ${cache_info}"
     fi
     ;;
 esac
