@@ -168,8 +168,12 @@ apply_tmux_theme() {
   local right_format
   right_format="$(get_tmux_option "@ghostty-right-format" "")"
   if [ -n "$right_format" ]; then
-    # Заменяем claude-5h и claude-7d на вызовы скрипта
+    # Схлопываем стандартную пару лимитов в один вызов, чтобы tmux не гонял
+    # два параллельных #() процесса и не ловил пустой вывод из-за lock race.
     local script_dir="${BASH_SOURCE[0]%/*}"
+    right_format="${right_format//claude-5h | claude-7d/#(${script_dir}/claude-usage.sh all)}"
+    right_format="${right_format//claude-7d | claude-5h/#(${script_dir}/claude-usage.sh all)}"
+    right_format="${right_format//claude-all/#(${script_dir}/claude-usage.sh all)}"
     right_format="${right_format//claude-5h/#(${script_dir}/claude-usage.sh 5h)}"
     right_format="${right_format//claude-7d/#(${script_dir}/claude-usage.sh 7d)}"
     # Разделитель | делаем серым
