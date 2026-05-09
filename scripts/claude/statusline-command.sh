@@ -34,6 +34,32 @@ cwd=$(echo "$input" | jq -r '
   .workspace.current_dir // .cwd // ""')
 session_cost=$(echo "$input" | jq -r '
   .cost.total_cost_usd // empty')
+h5_pct=$(echo "$input" | jq -r '
+  .rate_limits.five_hour.used_percentage // empty')
+h5_reset=$(echo "$input" | jq -r '
+  .rate_limits.five_hour.resets_at // empty')
+d7_pct=$(echo "$input" | jq -r '
+  .rate_limits.seven_day.used_percentage // empty')
+d7_reset=$(echo "$input" | jq -r '
+  .rate_limits.seven_day.resets_at // empty')
+
+# Atomic-write rate-limits to shared cache for ghostty/tmux readers.
+# Multiple Claude Code instances may write concurrently; mv is atomic on POSIX.
+# Account-wide values are identical across instances, so latest-write-wins is safe.
+if [ -n "$h5_pct" ] || [ -n "$d7_pct" ]; then
+  SHARED="$HOME/.cache/claude-rate-limits.json"
+  mkdir -p "$HOME/.cache"
+  TMP="${SHARED}.$$"
+  jq -n \
+    --argjson h5p "${h5_pct:-null}" \
+    --argjson h5r "${h5_reset:-null}" \
+    --argjson d7p "${d7_pct:-null}" \
+    --argjson d7r "${d7_reset:-null}" \
+    --argjson now "$(date +%s)" \
+    '{five_hour:{used_percentage:$h5p,resets_at:$h5r},seven_day:{used_percentage:$d7p,resets_at:$d7r},updated_at:$now}' \
+    > "$TMP" 2>/dev/null && mv -f "$TMP" "$SHARED" 2>/dev/null
+  rm -f "$TMP" 2>/dev/null
+fi
 
 # Fallbacks
 [ -z "$version" ] && version=$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
@@ -96,40 +122,17 @@ bg_update() {
 
 # === Cost functions ===
 
-fn_daily_cost() {
-  local start=$(date +%Y%m01) today=$(date +%Y-%m-%d)
-  local data=$(npx ccusage daily -j -s "$start" 2>/dev/null)
-  [ -z "$data" ] && return
-  echo "$data" | jq -r --arg t "$today" \
-    '([.daily[] | select(.date == $t) | .totalCost] | first // 0) | "\(. * 100 | round / 100)"'
-}
-
-fn_monthly_cost() {
-  local start=$(date +%Y%m01)
-  local data=$(npx ccusage daily -j -s "$start" 2>/dev/null)
-  [ -z "$data" ] && return
-  echo "$data" | jq -r '.totals.totalCost | "\(. * 100 | round / 100)"'
+# Single call returns both today and month costs:
+# {"currency":"USD","today":{"cost":N,"calls":N},"month":{"cost":N,"calls":N}}
+fn_codeburn_status() {
+  npx codeburn@latest status --provider claude --format json 2>/dev/null
 }
 
 fn_limits() {
-  # Read from shared cache populated by tmux claude-usage.sh
-  local CACHE_FILE="$HOME/.cache/claude-api-response.json"
-  [ -f "$CACHE_FILE" ] || return
+  # Use rate-limits parsed from current stdin JSON (per-request, no cache).
+  [ -z "$h5_pct" ] && [ -z "$d7_pct" ] && return
 
-  local USAGE=$(cat "$CACHE_FILE")
-
-  # Check for API errors
-  local api_error=$(echo "$USAGE" | jq -r '.error.type // empty' 2>/dev/null)
-  if [ -n "$api_error" ]; then
-    local RC='\033[38;5;204m' RS='\033[0m'
-    echo -e "🚫 429"
-    return
-  fi
-
-  local h5=$(echo "$USAGE" | jq -r '.five_hour.utilization // 0' | xargs printf "%.0f")
-  local d7=$(echo "$USAGE" | jq -r '.seven_day.utilization // 0' | xargs printf "%.0f")
-
-  # Color by threshold
+  local h5="${h5_pct:-0}" d7="${d7_pct:-0}"
   local GC='\033[38;5;114m' YC='\033[38;5;180m' RC='\033[38;5;204m' GR='\033[90m' RS='\033[0m'
   local c5 c7
   [ "$h5" -lt 50 ] && c5="$GC" || { [ "$h5" -lt 80 ] && c5="$YC" || c5="$RC"; }
@@ -142,12 +145,17 @@ fn_limits() {
 CACHE_DIR="/tmp/claude-statusline"
 mkdir -p "$CACHE_DIR"
 
-bg_update "$CACHE_DIR/daily-$(date +%Y%m%d)" 60 fn_daily_cost
-bg_update "$CACHE_DIR/monthly-$(date +%Y%m)" 60 fn_monthly_cost
+bg_update "$CACHE_DIR/codeburn.json" 60 fn_codeburn_status
 
-# Read cached values
-daily=$(read_cache "$CACHE_DIR/daily-$(date +%Y%m%d)" "-")
-monthly=$(read_cache "$CACHE_DIR/monthly-$(date +%Y%m)" "-")
+# Read cached JSON, parse today/month costs
+codeburn_json=$(read_cache "$CACHE_DIR/codeburn.json" "")
+if [ -n "$codeburn_json" ]; then
+  daily=$(echo "$codeburn_json" | jq -r '(.today.cost // 0) | (. * 100 | round / 100)')
+  monthly=$(echo "$codeburn_json" | jq -r '(.month.cost // 0) | (. * 100 | round / 100)')
+else
+  daily="-"
+  monthly="-"
+fi
 limits=$(fn_limits)
 [ -z "$limits" ] && limits="🔥 -"
 
@@ -156,7 +164,7 @@ short_dir=$(shorten_cwd "$cwd")
 
 # Session cost
 cost_str="\$0"
-[ -n "$session_cost" ] && [ "$session_cost" != "null" ] && cost_str=$(printf '$%.4f' "$session_cost")
+[ -n "$session_cost" ] && [ "$session_cost" != "null" ] && cost_str=$(printf '$%.2f' "$session_cost")
 
 # Git
 if [ -n "$cwd" ] && [ -d "$cwd" ]; then
