@@ -43,6 +43,11 @@ d7_pct=$(echo "$input" | jq -r '
 d7_reset=$(echo "$input" | jq -r '
   .rate_limits.seven_day.resets_at // empty')
 
+# Round percentages to integers — both the local display and the shared cache
+# (consumed by ghostty) get the rounded value, no duplicate logic downstream.
+[ -n "$h5_pct" ] && [ "$h5_pct" != "null" ] && h5_pct=$(printf '%.0f' "$h5_pct" 2>/dev/null)
+[ -n "$d7_pct" ] && [ "$d7_pct" != "null" ] && d7_pct=$(printf '%.0f' "$d7_pct" 2>/dev/null)
+
 # Atomic-write rate-limits to shared cache for ghostty/tmux readers.
 # Multiple Claude Code instances may write concurrently; mv is atomic on POSIX.
 # Account-wide values are identical across instances, so latest-write-wins is safe.
