@@ -26,6 +26,19 @@ RESET='\033[0m'
 # === Parse JSON ===
 model=$(echo "$input" | jq -r '
   .model.display_name // .model.id // "?"')
+model_id=$(echo "$input" | jq -r '
+  .model.id // ""')
+# Short model name: prefer family keyword from id, fall back to first word of display_name
+case "$model_id" in
+  *opus*)   model_short="Opus"   ;;
+  *sonnet*) model_short="Sonnet" ;;
+  *haiku*)  model_short="Haiku"  ;;
+  *fable*)  model_short="Fable"  ;;
+  *)        model_short=$(echo "$model" | awk '{print $1}') ;;
+esac
+# Reasoning effort level (absent when model has no effort parameter)
+effort=$(echo "$input" | jq -r '
+  .effort.level // empty')
 version=$(echo "$input" | jq -r '
   .version // empty')
 ctx_pct=$(echo "$input" | jq -r '
@@ -187,7 +200,25 @@ fi
 # Context %
 ctx_str="${GREEN}${ctx_pct:-0}%${RESET}"
 
+# Effort suffix (only when the model reports an effort level).
+# Color gradient by intensity: low=green ... max=bright red.
+if [ -n "$effort" ]; then
+  # Pastel gradient, soft steps: sage -> sand -> peach -> salmon -> dusty rose.
+  # xhigh also covers ultracode; max is the top and gets the deepest rose.
+  case "$effort" in
+    low)    effort_color='\033[38;5;151m'   ;;  # pastel sage green
+    medium) effort_color='\033[38;5;187m'   ;;  # pastel sand/khaki
+    high)   effort_color='\033[38;5;216m'   ;;  # pastel peach
+    xhigh)  effort_color='\033[38;5;210m'   ;;  # pastel salmon (incl. ultracode)
+    max)    effort_color='\033[38;5;174m'   ;;  # dusty rose (top)
+    *)      effort_color="$CYAN"            ;;
+  esac
+  effort_str=" ${effort_color}${effort}${RESET}"
+else
+  effort_str=""
+fi
+
 # === OUTPUT ===
-echo -e "${BMAGENTA}${model}${RESET} ${version:-?} | ${git_str}"
+echo -e "${BMAGENTA}${model_short}${RESET}${effort_str} ${version:-?} | ${git_str}"
 echo -e "🥡 ${ctx_str} | ${GRAY}↔️${RESET} ${term_width} | ${DBLUE}${short_dir}${RESET}"
 echo -e "⏳ ${CYAN}${cost_str}${RESET} ☀️ ${BGREEN}\$${daily}${RESET} 📅 ${GREEN}\$${monthly}${RESET} | ${limits}"
