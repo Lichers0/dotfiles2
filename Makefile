@@ -1,6 +1,6 @@
 TPM_PATH := ~/.tmux/plugins/tpm
 
-.PHONY: claude claude-statusline ghostty tmux lazyvim astro test nvim-configure mcp
+.PHONY: claude claude-statusline ghostty tmux herdr lazyvim astro test nvim-configure mcp
 
 claude:
 	@echo "Claude Desktop config contains secrets - configure manually:"
@@ -30,6 +30,18 @@ tmux:
 		echo "TPM already installed."; \
 	fi
 	@ln -snf $(PWD)/tmux/plugins/tmux-ghostty-theme ~/.tmux/plugins/tmux-ghostty-theme
+
+herdr:
+	@echo "Setting up herdr..."
+	@mkdir -p ~/.config/herdr
+	@if [ -f ~/.config/herdr/config.toml ] && [ ! -L ~/.config/herdr/config.toml ]; then \
+		mv ~/.config/herdr/config.toml ~/.config/herdr/config.toml.bak; \
+		echo "Backup: ~/.config/herdr/config.toml.bak"; \
+	fi
+	@ln -snf $(PWD)/files/herdr.toml ~/.config/herdr/config.toml
+	@echo "Done! Symlink: ~/.config/herdr/config.toml"
+	@echo "Reload running server: herdr server reload-config"
+
 lazyvim:
 	ln -snf $(PWD)/lazyvim ~/.config/nvim
 astro:
