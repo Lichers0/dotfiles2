@@ -15,29 +15,36 @@ auto_switch = false
 # dark_name = "gruvbox"
 # light_name = "catppuccin-latte"
 
-# Sidebar has no border of its own: it is separated from the pane area by
-# panel_bg alone. The default is transparent, so it inherits the terminal
-# background and the edge is invisible. Clearly darker than Ghostty's
-# Gruvbox Dark background (#282828) so the sidebar reads as its own strip.
-# accent draws the frame around the pane area, i.e. the visible edge between
-# the sidebar and the workspace.
+# Token map measured on 0.7.5 by launching an isolated `herdr --session` with a
+# unique garish color per token and reading the SGR codes from a tmux capture.
+# The sidebar IS outlined in this build, just not by any [ui] option: a
+# full-height vertical rule between the sidebar and the pane area plus the
+# horizontal rule between the spaces and agents sections. Both rules AND the
+# background bar under the active space/agent row are painted by the single
+# surface_dim token. It was unset here, and its gruvbox default sits so close
+# to Ghostty's #282828 background that the whole contour and the active-row
+# highlight were invisible. The sidebar background itself is not exposed as a
+# token and stays on the terminal background.
 [theme.custom]
-# The sidebar background is not exposed as a theme token in this build, so the
-# only markers of where it ends are the tab bar (panel_bg) and the pane frame
-# (accent). Both are set to stay visible against the gruvbox background.
-# panel_bg was #3c3836, which is exactly gruvbox's surface0 — the background
-# of the selected sidebar row. The highlight was being drawn, it just matched
-# the panel behind it. Keep the two apart: panel_bg darker than Ghostty's
-# #282828, surface0 clearly lighter so the active space/agent row reads as a bar.
+# Tab bar background (also the navigator popup fill). Darker than Ghostty's
+# #282828 so the bar reads as its own strip.
 panel_bg = "#1d2021"
+# The contour: sidebar/pane divider, spaces/agents section rule, and the
+# highlight bar under the active space and agent rows — one token for all
+# three, so the rule color and the selection color cannot differ. gruvbox bg2:
+# clearly lighter than #282828, calm enough for a full-height line.
+surface_dim = "#504945"
+# NOT the sidebar row highlight (that is surface_dim above; earlier comments
+# here claimed otherwise). Kept for selection surfaces in settings/menus.
 surface0 = "#504945"
-accent = "#fabd2f"
-# surface1/overlay0 are the dim tokens: unfocused pane borders AND unfocused
-# sidebar rows. Pushing them near `text` (#ebdbb2) made every agent row look
-# equally bright, so the focused one stopped standing out. Keep them in
-# gruvbox's mid range: visible as borders, clearly dimmer than a focused row.
+# Inner rules and tree connectors inside the navigate (prefix+g) popup.
 surface1 = "#665c54"
+# Unfocused pane borders, section headers (spaces/agents/new/menu), and the
+# sidebar collapse chevron. Mid-range: reads as a frame, dimmer than accent.
 overlay0 = "#7c6f64"
+# Focused pane border, active tab background, navigator popup border,
+# menu notification dot.
+accent = "#fabd2f"
 
 [terminal]
 # Empty means $SHELL, then /bin/sh.
