@@ -2,7 +2,7 @@
 # Claude Code 3-line status line (replicates ccstatusline layout)
 # Line 1: Model Version | 🥡 ctx% | ⎇ branch (changes)
 # Line 2: ↔️ width | dir
-# Line 3: ⏳ session ☀️ daily 📅 monthly | 🔥 5h/7d limits
+# Line 3: ⏳ session ☀️ daily 📅 monthly | 🔥 5h/7d limits (time to reset)
 
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
@@ -114,6 +114,25 @@ shorten_cwd() {
   fi
 }
 
+# Time left until epoch timestamp: 6d3h / 1h42m / 17m / now
+fmt_eta() {
+  local reset="$1" now delta d h m
+  { [ -z "$reset" ] || [ "$reset" = "null" ]; } && return
+  now=$(date +%s)
+  delta=$(( reset - now ))
+  [ "$delta" -le 0 ] && { echo "now"; return; }
+  d=$(( delta / 86400 ))
+  h=$(( (delta % 86400) / 3600 ))
+  m=$(( (delta % 3600) / 60 ))
+  if [ "$d" -gt 0 ]; then
+    echo "${d}d${h}h"
+  elif [ "$h" -gt 0 ]; then
+    echo "${h}h${m}m"
+  else
+    echo "${m}m"
+  fi
+}
+
 # Read cache file, return default if missing
 read_cache() { [ -f "$1" ] && cat "$1" || echo "$2"; }
 
@@ -152,11 +171,13 @@ fn_limits() {
 
   local h5="${h5_pct:-0}" d7="${d7_pct:-0}"
   local GC='\033[38;5;114m' YC='\033[38;5;180m' RC='\033[38;5;204m' GR='\033[90m' RS='\033[0m'
-  local c5 c7
+  local c5 c7 e5 e7
   [ "$h5" -lt 50 ] && c5="$GC" || { [ "$h5" -lt 80 ] && c5="$YC" || c5="$RC"; }
   [ "$d7" -lt 50 ] && c7="$GC" || { [ "$d7" -lt 80 ] && c7="$YC" || c7="$RC"; }
+  e5=$(fmt_eta "$h5_reset")
+  e7=$(fmt_eta "$d7_reset")
 
-  echo -e "🔥 ${GR}5h:${RS}${c5}${h5}%${RS} ${GR}7d:${RS}${c7}${d7}%${RS}"
+  echo -e "🔥 ${GR}5h:${RS}${c5}${h5}%${RS}${e5:+${GR}:${e5}${RS}} ${GR}7d:${RS}${c7}${d7}%${RS}${e7:+${GR}:${e7}${RS}}"
 }
 
 # === Trigger background cache updates ===
