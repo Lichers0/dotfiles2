@@ -1,8 +1,11 @@
 auto-update = off
 #theme = "Catppuccin Macchiato"
-theme = "TokyoNight Storm"
-# theme = "Gruvbox Dark"
+# theme = "TokyoNight Storm"
+theme = "Gruvbox Dark"
 # theme = "Gruvbox Material Dark"
+# Left Option sends ESC-prefixed sequences (real Alt) so herdr sees alt+1..9;
+# right Option stays as macOS compose key for typing special characters.
+macos-option-as-alt = left
 keybind = global:cmd+shift+ctrl+t=toggle_quick_terminal
 keybind = cmd+r=set_font_size:30
 keybind = cmd+e=reset_font_size
