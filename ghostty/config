@@ -10,7 +10,9 @@ keybind = global:cmd+shift+ctrl+t=toggle_quick_terminal
 keybind = cmd+r=set_font_size:30
 keybind = cmd+e=reset_font_size
 keybind = cmd+enter=toggle_fullscreen
-font-family = "MesloLGS Nerd Font Mono"
+# FiraCode (non-Mono variant): programming ligatures + double-width NF icons.
+# Meslo has no ligatures at all; "Nerd Font Mono" builds strip them.
+font-family = "FiraCode Nerd Font"
 font-size = 14
 font-thicken = true
 font-thicken-strength = 128
