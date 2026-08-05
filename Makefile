@@ -1,6 +1,6 @@
 TPM_PATH := ~/.tmux/plugins/tpm
 
-.PHONY: claude claude-statusline ghostty tmux herdr lazyvim astro test nvim-configure mcp
+.PHONY: claude claude-statusline ghostty tmux herdr starship lazyvim astro test nvim-configure mcp
 
 claude:
 	@echo "Claude Desktop config contains secrets - configure manually:"
@@ -41,6 +41,16 @@ herdr:
 	@ln -snf $(PWD)/files/herdr.toml ~/.config/herdr/config.toml
 	@echo "Done! Symlink: ~/.config/herdr/config.toml"
 	@echo "Reload running server: herdr server reload-config"
+
+starship:
+	@echo "Setting up starship..."
+	@mkdir -p ~/.config
+	@if [ -f ~/.config/starship.toml ] && [ ! -L ~/.config/starship.toml ]; then \
+		mv ~/.config/starship.toml ~/.config/starship.toml.bak; \
+		echo "Backup: ~/.config/starship.toml.bak"; \
+	fi
+	@ln -snf $(PWD)/files/starship.toml ~/.config/starship.toml
+	@echo "Done! Symlink: ~/.config/starship.toml"
 
 lazyvim:
 	ln -snf $(PWD)/lazyvim ~/.config/nvim
