@@ -86,8 +86,14 @@ format = '[ $user ]($style)'
 [directory]
 style = "fg:color_fg0 bg:color_yellow"
 format = "[ $path ]($style)"
-truncation_length = 3
+truncation_length = 4
 truncation_symbol = "…/"
+# Worktree layout puts the repo root in a dir named after the branch (…/gosling/master),
+# so truncating at the repo root hides the project name. Show the parents instead and
+# make the repo root bold.
+truncate_to_repo = false
+repo_root_style = "bold fg:color_fg0 bg:color_yellow"
+repo_root_format = "[ $before_root_path]($style)[$repo_root]($repo_root_style)[$path ]($style)"
 
 [directory.substitutions]
 "Documents" = "󰈙 "
