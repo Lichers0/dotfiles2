@@ -41,6 +41,34 @@ FILE LOCATIONS
   ~/.codex/agents/gsd-*.toml           top-level `model` / `model_reasoning_effort`
   ~/.config/opencode/opencode.jsonc    `agent.<name>.model` (NOT the agent frontmatter)
 
+A FOURTH CHANNEL THIS SCRIPT DOES NOT TOUCH
+-------------------------------------------
+`/gsd-review` (cross-AI peer review) does not spawn subagents at all. It shells out to
+each reviewer CLI directly - the claude lane runs literally
+
+    claude --model <M> --effort <E> -p -
+
+with the prompt on stdin (see gsd-core/bin/lib/review-lane-descriptor.cjs). Its model
+comes from `review.models.<lane>` in .planning/config.json, NOT from any agent file, so
+nothing this script writes affects it. Lanes: claude, codex, opencode, gemini, cursor,
+antigravity, ollama, lm_studio, llama_cpp, kimi-code, qwen, coderabbit. An unset lane
+falls back to that CLI's own default model.
+
+HOW TO VERIFY A RUNTIME ACTUALLY HONOURS ITS PIN
+------------------------------------------------
+Spawn one subagent headlessly and look at which model answered. Pick an agent whose
+pin DIFFERS from the runtime's default model, or the test proves nothing.
+
+  codex:    codex exec --skip-git-repo-check "Spawn the subagent gsd-verifier ..."
+            then grep the rollout under ~/.codex/sessions for the model id
+  opencode: opencode run --print-logs --log-level DEBUG "Use the task tool to spawn
+            gsd-verifier ..." and read the `modelID=` on the subagent's stream line
+  claude:   claude -p "Use the Agent tool with subagent_type gsd-verifier ..."
+            --output-format json, then read `modelUsage`
+
+This is how the OpenCode frontmatter trap above was found - do not assume a pin works
+because the file contains it.
+
 Usage:  python3 gsd-agent-models.py [--dry-run]
 """
 
