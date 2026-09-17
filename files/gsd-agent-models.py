@@ -9,10 +9,15 @@ GSD has no runtime model resolution enabled in this setup: the project config se
 string for every agent and the orchestrator omits the `model=` parameter on spawn.
 The model is therefore decided entirely by each agent's own definition file.
 
-Only OpenCode has an install-time channel for this (it reads
-`model_profile_overrides.opencode.<tier>` from ~/.gsd/defaults.json and bakes `model:`
-into the agent frontmatter). Claude Code and Codex CLI have no such channel, so their
-pins are hand-written and are LOST on every `/gsd-update`.
+Claude Code and Codex CLI read the pin from each agent's own definition file, and those
+hand-written pins are LOST on every `/gsd-update`.
+
+OpenCode is different and this is the trap: GSD bakes `model:` into the agent
+frontmatter (from `model_profile_overrides.opencode.<tier>` in ~/.gsd/defaults.json),
+but OpenCode 1.18 IGNORES that key for subagents - the spawned session is created with
+`model=undefined` and silently inherits the parent's model. Verified in the debug log.
+The channel that actually works is the `agent` section of opencode.jsonc, so that is
+what this script writes. The frontmatter values are left alone; they are inert.
 
 Run this script after any GSD update to restore the intended assignment.
 
@@ -34,7 +39,7 @@ FILE LOCATIONS
 --------------
   ~/.claude/agents/gsd-*.md            frontmatter key `model:`  (+ .compact.md variants)
   ~/.codex/agents/gsd-*.toml           top-level `model` / `model_reasoning_effort`
-  ~/.config/opencode/agents/gsd-*.md   frontmatter key `model:`
+  ~/.config/opencode/opencode.jsonc    `agent.<name>.model` (NOT the agent frontmatter)
 
 Usage:  python3 gsd-agent-models.py [--dry-run]
 """
@@ -70,8 +75,10 @@ RUNTIMES = {
         "plan_checker": ("gpt-6-astra", "high"),
     },
     "opencode": {
+        # Agent names are discovered here, but the models are written to opencode.jsonc.
         "dir": "~/.config/opencode/agents",
         "glob": "gsd-*.md",
+        "config": "~/.config/opencode/opencode.jsonc",
         "heavy": "openrouter/~deepseek/deepseek-pro-latest",
         "checking": "openrouter/~deepseek/deepseek-flash-latest",
         # OpenCode is not split out: plan-checker stays on flash.
@@ -131,11 +138,35 @@ def patch_toml(path, model, effort):
     return True
 
 
+def patch_opencode_config(cfg, directory):
+    """Write agent.<name>.model into opencode.jsonc for every gsd-* agent found."""
+    import json
+    path = os.path.expanduser(cfg["config"])
+    names = sorted({os.path.basename(p).removesuffix(".compact.md").removesuffix(".md")
+                    for p in glob.glob(os.path.join(directory, cfg["glob"]))})
+    conf = json.load(open(path))
+    section = conf.setdefault("agent", {})
+    counts = {}
+    for name in names:
+        model = pick(cfg, name.removeprefix("gsd-"))
+        section.setdefault(name, {})["model"] = model
+        counts[model] = counts.get(model, 0) + 1
+    if not DRY:
+        json.dump(conf, open(path, "w"), indent=2)
+        open(path, "a").write("\n")
+    return counts
+
+
 def main():
     for runtime, cfg in RUNTIMES.items():
         directory = os.path.expanduser(cfg["dir"])
         if not os.path.isdir(directory):
             print(f"{runtime}: skipped - {cfg['dir']} not found")
+            continue
+        if runtime == "opencode":
+            counts = patch_opencode_config(cfg, directory)
+            summary = ", ".join(f"{m}: {n}" for m, n in sorted(counts.items()))
+            print(f"{runtime}: {summary}")
             continue
         counts = {}
         for path in sorted(glob.glob(os.path.join(directory, cfg["glob"]))):
